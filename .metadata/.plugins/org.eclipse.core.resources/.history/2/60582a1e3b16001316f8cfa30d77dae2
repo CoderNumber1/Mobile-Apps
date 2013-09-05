@@ -26,7 +26,6 @@
         android:adjustViewBounds="true"
         android:maxHeight="100dp"
         android:maxWidth="100dp"
-        android:padding="5dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ucoimage" />
 
@@ -35,7 +34,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/Blue"
-        android:textColor="@color/White"
         android:text="CS" />
 
 </LinearLayout>
