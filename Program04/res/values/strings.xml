@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Program04</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="number_one_label">Number One</string>
+    <string name="number_two_label">Number Two</string>
+    <string name="result_label">Result</string>
+    <string name="result_pending">None</string>
+    <string name="btnAddText">Add</string>
+    <string name="btnMultiplyText">Multiply</string>
+    <string name="btnComputAddText">Compute to Add</string>
+    <string name="btnComputMultiplyText">Compute to Multiply</string>
+    <string name="title_activity_operator">Math Operation</string>
+
+</resources>
