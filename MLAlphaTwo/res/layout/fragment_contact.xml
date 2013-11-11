@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical"
+  >
+  
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/first_name_label"
+    style="?android:listSeparatorTextViewStyle"
+    />
+  <EditText android:id="@+id/txtName"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:hint="@string/first_name_hint"
+    />
+  
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/last_name_label"
+    style="?android:listSeparatorTextViewStyle"
+    />
+  <EditText android:id="@+id/txtDescription"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:hint="@string/last_name_hint"
+    />
+  
+  <TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Genre"
+    style="?android:listSeparatorTextViewStyle"
+    />
+  <Spinner android:id="@+id/spnGenre"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:hint="Genre"
+    />
+  
+</LinearLayout>

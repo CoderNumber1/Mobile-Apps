@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Movie Locker</string>
+    <string name="action_settings">Settings</string>
+    
+	<string name="genre_list_title">Genres</string>
+	<string name="genre_title">Genre</string>
+	
+	<string name="movie_list_title">Movies</string>
+	<string name="movie_title">Movie</string>
+    
+    <string name="menu_text_new">New</string>
+    <string name="menu_text_save">Save</string>
+    
+    <string name="genre_name_text">Name</string>
+    
+    <string name="movie_name_text">Name</string>
+    <string name="movie_description_text">Description</string>
+    <string name="movie_genre_text">Genre</string>
+
+</resources>

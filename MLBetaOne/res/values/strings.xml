@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Movie Locker Alpha One</string>
+    <string name="contact_list_title">Contacts</string>
+    <string name="name_default">Name</string>
+    <string name="first_name_hint">John</string>
+    <string name="last_name_hint">Smith</string>
+    <string name="age_hint">24</string>
+    <string name="phone_hint">(405)&#8211;555&#8211;5555</string>
+    <string name="email_hint">john.smith@email.com</string>
+    <string name="first_name_label">First Name</string>
+    <string name="last_name_label">Last Name</string>
+    <string name="age_label">Age</string>
+    <string name="phone_label">Phone</string>
+    <string name="email_label">Email</string>
+    <string name="menu_add_text">Add Contact</string>
+    <string name="menu_sort_name_text">Sort Name</string>
+    <string name="menu_sort_age_text">Sort Age</string>
+    <string name="menu_delete_contact_text">Delete</string>
+    <string name="take_picture_text">Take</string>
+
+</resources>
