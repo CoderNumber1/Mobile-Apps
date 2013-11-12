@@ -12,11 +12,15 @@
     
     <string name="menu_text_new">New</string>
     <string name="menu_text_save">Save</string>
+    <string name="menu_delete_movie_text">Delete</string>
     
     <string name="genre_name_text">Name</string>
     
     <string name="movie_name_text">Name</string>
     <string name="movie_description_text">Description</string>
     <string name="movie_genre_text">Genre</string>
+    <string name="movie_barcode_text">Barcode</string>
+    
+    <string name="barcode_scan_text">Scan Barcode</string>
 
 </resources>

@@ -1,13 +1,27 @@
 package com.laziton.movielocker;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import com.laziton.mlalphathree.R;
 import com.laziton.movielocker.data.Genre;
@@ -30,6 +44,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -47,6 +62,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -57,6 +73,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 public class MovieActivity extends SingleFragmentHost {
 	public static final String MOVIE_ID = "com.laziton.movielocker.MovieActivity.movieId";
 	public static final int ACTIVITY_GET_IMAGE = 1;
+	public static final int ACTIVITY_GET_BARCODE = 2;
 
 	@Override
 	protected Fragment createFragment() {
@@ -71,9 +88,11 @@ public class MovieActivity extends SingleFragmentHost {
 		
 		EditText txtName;
 		EditText txtDescription;
+		EditText txtBarcode;
 		Spinner spnGenre;
 		ImageButton btnTakePicture;
 		ImageView movieImageView;
+		Button btnScanBarcode;
 		
 		public static MovieFragment newInstance(int id){
 			MovieFragment result = new MovieFragment();
@@ -163,6 +182,8 @@ public class MovieActivity extends SingleFragmentHost {
 	            }
 	        });
 	        
+	        this.txtBarcode = (EditText)view.findViewById(R.id.txtBarcode);
+	        
 	        btnTakePicture = (ImageButton)view.findViewById(R.id.btnTakePicture);
 	        btnTakePicture.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -206,13 +227,42 @@ public class MovieActivity extends SingleFragmentHost {
 				}
 			});
 	        
+	        this.btnScanBarcode = (Button)view.findViewById(R.id.btnScanBarcode);
+	        this.btnScanBarcode.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					Intent scanIntent = new Intent(getActivity(), ScannerActivity.class);
+					startActivityForResult(scanIntent, MovieActivity.ACTIVITY_GET_BARCODE);
+				}
+			});
+	        
 	        return view; 
 	    }
 		
 		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
 			if(resultCode == RESULT_OK){
-				if(requestCode == MovieActivity.ACTIVITY_GET_IMAGE){
+				if(requestCode == MovieActivity.ACTIVITY_GET_BARCODE){
+					String barcode = data.getStringExtra(ScannerActivity.BARCODE_KEY);
+					this.txtBarcode.setText(barcode);
+					new BarcodeSearchTask(new BarcodeSearchAsyncCallback(){
+
+						@Override
+						public void callback(JSONObject result) {
+							try {
+								JSONObject basic = result.getJSONObject("basic");
+								String name = basic.getString("name");
+								txtName.setText(name);
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						
+					}).execute(barcode);
+				}
+				else if(requestCode == MovieActivity.ACTIVITY_GET_IMAGE){
 					boolean isCamera;
 					if(data == null)
 						isCamera = true;
@@ -332,6 +382,58 @@ public class MovieActivity extends SingleFragmentHost {
 	            return convertView;
 	        }
 	    }
+		
+		public interface BarcodeSearchAsyncCallback{
+			public void callback(JSONObject result);
+		}
+		
+		private class BarcodeSearchTask extends AsyncTask<String,Integer,JSONObject>{
+			BarcodeSearchAsyncCallback callback;
+			
+			public BarcodeSearchTask(BarcodeSearchAsyncCallback callback){
+				this.callback = callback;
+			}
+			
+			@Override
+			protected JSONObject doInBackground(String... barcode) {
+				JSONObject result = null;
+		    	HttpClient client = new DefaultHttpClient();
+		    	HttpResponse response;
+		        String responseString = null;
+		    	try {
+		    		String url = String.format("https://api.scandit.com/v2/products/%s?key=%s", barcode[0], "bK5Ky4GYpvc_hD56elkfJnGfAEIYO5QU0dDKO0RJLYp");
+		            response = client.execute(new HttpGet(url));
+		            StatusLine statusLine = response.getStatusLine();
+		            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+		            	BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+						StringBuilder builder = new StringBuilder();
+						for (String line = null; (line = reader.readLine()) != null; ) {
+						    builder.append(line).append("\n");
+						}
+						JSONTokener tokener = new JSONTokener(builder.toString());
+						result = new JSONObject(tokener);
+		            } else{
+		                //Closes the connection.
+		                response.getEntity().getContent().close();
+		                throw new IOException(statusLine.getReasonPhrase());
+		            }
+		        } catch (ClientProtocolException e) {
+		            //TODO Handle problems..
+		        } catch (IOException e) {
+		            //TODO Handle problems..
+		        } catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    	
+		    	return result;
+			}
 
+			@Override
+			protected void onPostExecute(JSONObject result) {
+				this.callback.callback(result);
+			}
+			
+		}
 	}
 }

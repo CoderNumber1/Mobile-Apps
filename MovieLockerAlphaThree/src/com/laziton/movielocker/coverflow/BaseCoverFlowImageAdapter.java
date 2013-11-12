@@ -4,13 +4,18 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.laziton.mlalphathree.R;
+import com.laziton.movielocker.data.Movie;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public abstract class BaseCoverFlowImageAdapter extends BaseAdapter {
 
@@ -44,7 +49,7 @@ public abstract class BaseCoverFlowImageAdapter extends BaseAdapter {
     }
 
     @Override
-    public final synchronized ImageView getView(final int position, final View convertView, final ViewGroup parent) {
+    public final synchronized View getView(final int position, final View convertView, final ViewGroup parent) {
         ImageView imageView;
         if (convertView == null) {
             final Context context = parent.getContext();
@@ -57,6 +62,16 @@ public abstract class BaseCoverFlowImageAdapter extends BaseAdapter {
         }
         imageView.setImageBitmap(getItem(position));
         return imageView;
+        
+//        if (null == convertView) {
+//            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.coverflowitem, null);
+//        }
+//
+//        Movie movie = getItem(position);
+//        TextView titleTextView = (TextView)convertView.findViewById(android.R.id.text1);
+//        titleTextView.setText(movie.getName());
+//
+//        return convertView;
     }
 
 }

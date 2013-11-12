@@ -10,6 +10,8 @@ import com.laziton.movielocker.dataservices.IDataService;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 public class MovieCoverFlowActivity extends SingleFragmentHost {
@@ -26,7 +29,15 @@ public class MovieCoverFlowActivity extends SingleFragmentHost {
 		// TODO Auto-generated method stub
 		return new MovieCoverFlowFragment();
 	}
-
+	
+////	public static class MovieCoverList extends ViewPager {
+////
+////		public MovieCoverList(Context context) {
+////			super(context);
+////		}
+////		
+////	}
+//
 	public static class MovieCoverFlowFragment extends Fragment{
 		TextView txtMovieName;
 		CoverFlow cvrMovies;
