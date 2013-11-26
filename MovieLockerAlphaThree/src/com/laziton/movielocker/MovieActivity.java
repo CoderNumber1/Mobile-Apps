@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,17 +20,22 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.laziton.mlalphathree.R;
+import com.laziton.movielocker.CollectionActivity.CollectionFragment;
+import com.laziton.movielocker.data.Collection;
+import com.laziton.movielocker.data.CollectionMovie;
 import com.laziton.movielocker.data.Genre;
 import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.dataservices.DataServiceFactory;
 import com.laziton.movielocker.dataservices.IDataService;
 import com.laziton.movielocker.images.ImageManager;
 import com.laziton.movielocker.images.ImageManager.GetImageAsyncCallback;
+import com.laziton.movielocker.images.ImageManager.SetImageAsyncCallback;
 
 import android.annotation.TargetApi;
 import android.content.ComponentName;
@@ -66,6 +72,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -74,6 +82,7 @@ public class MovieActivity extends SingleFragmentHost {
 	public static final String MOVIE_ID = "com.laziton.movielocker.MovieActivity.movieId";
 	public static final int ACTIVITY_GET_IMAGE = 1;
 	public static final int ACTIVITY_GET_BARCODE = 2;
+	public static final int ACTIVITY_GET_COLLECTIONS = 3;
 
 	@Override
 	protected Fragment createFragment() {
@@ -83,16 +92,20 @@ public class MovieActivity extends SingleFragmentHost {
 
 	public static class MovieFragment extends Fragment{
 		Movie movie;
+		ArrayList<Collection> movieCollections;
+		ArrayAdapter<Collection> collectionsAdapter;
 		Uri movieImageTempUri;
 		Bitmap movieImage;
 		
 		EditText txtName;
-		EditText txtDescription;
+		EditText txtPrice;
 		EditText txtBarcode;
 		Spinner spnGenre;
 		ImageButton btnTakePicture;
 		ImageView movieImageView;
 		Button btnScanBarcode;
+		ListView lstMembers;
+		Button btnEditMembers;
 		
 		public static MovieFragment newInstance(int id){
 			MovieFragment result = new MovieFragment();
@@ -111,10 +124,12 @@ public class MovieActivity extends SingleFragmentHost {
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
 		        dataService.Open();
 		        this.movie = dataService.GetMovie(id);
+		        this.movieCollections = dataService.GetCollectionsByCollectionMovies(dataService.GetCollectionMovies(null, id));
 		        dataService.Close();
 	        }
 	        else{
 	        	this.movie = new Movie();
+	        	this.movieCollections = new ArrayList<Collection>();
 	        }
 	        
 	        setHasOptionsMenu(true);
@@ -166,11 +181,18 @@ public class MovieActivity extends SingleFragmentHost {
 	                // this one too
 	            }
 	        });
-	        txtDescription = (EditText)view.findViewById(R.id.txtDescription);
-	        txtDescription.setText(movie.getDescription());
-	        txtDescription.addTextChangedListener(new TextWatcher() {
+	        txtPrice = (EditText)view.findViewById(R.id.txtPrice);
+	        txtPrice.setText(movie.getPrice() != null ? movie.getPrice().toString() : null);
+	        txtPrice.addTextChangedListener(new TextWatcher() {
 	            public void onTextChanged(CharSequence c, int start, int before, int count) {
-	                movie.setDescription(c.toString());
+	            	if(!c.toString().equals("")){
+	            		movie.setPrice(Double.parseDouble(c.toString()));
+	            	}
+	            	else{
+	            		movie.setPrice(null);
+	            	}
+
+//	                movie.setDescription(c.toString());
 	            }
 
 	            public void beforeTextChanged(CharSequence c, int start, int count, int after) {
@@ -188,33 +210,17 @@ public class MovieActivity extends SingleFragmentHost {
 	        btnTakePicture.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View arg0) {
-					String imageName = "movie_locker_" + String.valueOf(UUID.randomUUID()) + ".jpg";
-					File imageFile = new File(getActivity().getFilesDir(), imageName);
-					imageFile.delete();
-					try {
-						FileOutputStream fileOut = getActivity().openFileOutput(imageName, Context.MODE_WORLD_WRITEABLE);
-						fileOut.close();
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					imageFile = new File(getActivity().getFilesDir(), imageName);
-					
-					movieImageTempUri = Uri.fromFile(imageFile);
+					movieImageTempUri = ImageManager.getInstance().generateTempUri();
 					List<Intent> cameraIntents = new ArrayList<Intent>();
 					Intent getCameraImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 					PackageManager pm = getActivity().getPackageManager();
 					for(ResolveInfo res : pm.queryIntentActivities(getCameraImage, 0)){
 						final String packageName = res.activityInfo.packageName;
-						final Intent cameraIntent = new Intent(getCameraImage);
+						final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 						cameraIntent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
 						cameraIntent.setPackage(packageName);
 						cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, movieImageTempUri);
-						getCameraImage.putExtra("return-data", true);
+						cameraIntent.putExtra("return-data", true);
 						cameraIntents.add(cameraIntent);
 					}
 					
@@ -237,6 +243,65 @@ public class MovieActivity extends SingleFragmentHost {
 				}
 			});
 	        
+	        this.lstMembers = (ListView)view.findViewById(R.id.lstMembers);
+	        collectionsAdapter = new ArrayAdapter<Collection>(getActivity(), android.R.layout.simple_list_item_1, this.movieCollections){
+	        	@Override
+				public View getView(int position, View convertView, ViewGroup parent) {
+		            if (null == convertView) {
+		                convertView = getActivity().getLayoutInflater()
+		                    .inflate(android.R.layout.simple_list_item_1, null);
+		            }
+
+		            Collection collection = getItem(position);
+		            TextView titleTextView = (TextView)convertView.findViewById(android.R.id.text1);
+		            titleTextView.setText(collection.getName());
+
+		            return convertView;
+				}
+	        };
+	        this.lstMembers.setAdapter(collectionsAdapter);
+	        
+	        this.btnEditMembers = (Button)view.findViewById(R.id.btnEditMembers);
+	        if(this.movie.getId() <= 0)
+	        	this.btnEditMembers.setActivated(false);
+	        this.btnEditMembers.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					Intent getMembers = new Intent(getActivity(), MovieCollectionsActivity.class);
+					getMembers.putExtra(MOVIE_ID, movie.getId());
+					MovieFragment.this.startActivityForResult(getMembers, ACTIVITY_GET_COLLECTIONS);
+				}
+			});
+	        
+	        RadioButton rdoOwned = (RadioButton)view.findViewById(R.id.rdoOwned);
+	        RadioButton rdoWish = (RadioButton)view.findViewById(R.id.rdoWish); 
+	        
+	        if(this.movie.getOwned()){
+	        	rdoOwned.setChecked(true);
+	        	rdoWish.setChecked(false);
+	        }
+	        else{
+	        	rdoOwned.setChecked(false);
+	        	rdoWish.setChecked(true);
+	        }
+	        
+	        rdoOwned.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					MovieFragment.this.onRadioClicked(v);
+				}
+			});
+	        
+	        rdoWish.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					MovieFragment.this.onRadioClicked(v);
+				}
+			});
+	        
 	        return view; 
 	    }
 		
@@ -246,17 +311,40 @@ public class MovieActivity extends SingleFragmentHost {
 				if(requestCode == MovieActivity.ACTIVITY_GET_BARCODE){
 					String barcode = data.getStringExtra(ScannerActivity.BARCODE_KEY);
 					this.txtBarcode.setText(barcode);
-					new BarcodeSearchTask(new BarcodeSearchAsyncCallback(){
+					new BBYOpenBarcodeSearchTask(new BarcodeSearchAsyncCallback(){
 
+						
 						@Override
-						public void callback(JSONObject result) {
+						public void callback(BarcodeSearchResult result) {
+							JSONArray products;
 							try {
-								JSONObject basic = result.getJSONObject("basic");
-								String name = basic.getString("name");
-								txtName.setText(name);
-							} catch (JSONException e) {
+								products = result.result.getJSONArray("products");
+								if(products != null && products.length() > 0){
+									JSONObject product = products.getJSONObject(0);
+									String name = product.getString("name");
+									Double price = product.getDouble("salePrice");
+									txtPrice.setText(price.toString());
+									txtName.setText(name);
+								}
+								else{
+									new ScanditBarcodeSearchTask(new BarcodeSearchAsyncCallback(){
+
+										@Override
+										public void callback(BarcodeSearchResult result) {
+											try {
+												JSONObject basic = result.result.getJSONObject("basic");
+												String name = basic.getString("name");
+												txtName.setText(name);
+											} catch (JSONException e) {
+												e.printStackTrace();
+											}
+										}
+										
+									}).execute(result.barcode);
+								}
+							} catch (JSONException e1) {
 								// TODO Auto-generated catch block
-								e.printStackTrace();
+								e1.printStackTrace();
 							}
 						}
 						
@@ -281,14 +369,32 @@ public class MovieActivity extends SingleFragmentHost {
 						selectedImage = data == null ? null : data.getData();
 					
 					if(selectedImage != null){
-						this.movie.setImageUri(selectedImage.toString());
 						this.setImage(selectedImage);
 					}
+				}
+				else if(requestCode == MovieActivity.ACTIVITY_GET_COLLECTIONS){
+					Bundle args = data.getExtras();
+					Object result = args.getSerializable(MovieCollectionsActivity.EXTRA_SELECTED_COLLECTIONS);
+					ArrayList<Collection> members = (ArrayList<Collection>)result;
+					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+					dataService.Open();
+					dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(null, this.movie.getId()));
+					for(Collection member : members){
+						CollectionMovie memberEntry = new CollectionMovie();
+						memberEntry.setMovieId(this.movie.getId());
+						memberEntry.setCollectionId(member.getId());
+						dataService.InsertCollectionMovie(memberEntry);
+					}
+					this.movieCollections.clear(); 
+					this.movieCollections.addAll(dataService.GetCollectionsByCollectionMovies(((dataService.GetCollectionMovies(null, this.movie.getId())))));
+					this.collectionsAdapter.notifyDataSetChanged();
+					dataService.Close();
 				}
 			}
 		}
 		
 		private void setImage(Uri imageUri){
+			this.movieImageTempUri = imageUri;
 			ImageManager.getInstance().getImageAsync(imageUri, new ImageManager.GetImageAsyncCallback() {
 				
 				@Override
@@ -296,6 +402,32 @@ public class MovieActivity extends SingleFragmentHost {
 					MovieFragment.this.movieImageView.setImageDrawable(image);
 				}
 			});
+		}
+		
+		private void setImage(int movieId){
+			ImageManager.getInstance().getImageAsync(movieId, new ImageManager.GetImageAsyncCallback() {
+				
+				@Override
+				public void callback(BitmapDrawable image) {
+					if(image != null)
+						MovieFragment.this.movieImageView.setImageDrawable(image);
+				}
+			});
+		}
+		
+		public void onRadioClicked(View view){
+			boolean checked = ((RadioButton)view).isChecked();
+			
+			switch(view.getId()){
+				case R.id.rdoOwned:
+					if(checked)
+						this.movie.setOwned(true);
+					break;
+				case R.id.rdoWish:
+					if(checked)
+						this.movie.setOwned(false);
+					break;
+			}
 		}
 
 		@Override
@@ -316,6 +448,15 @@ public class MovieActivity extends SingleFragmentHost {
 	            	else
 	            		dataService.InsertMovie(this.movie);
 	            	
+	            	if(this.movieImageTempUri != null)
+	            		ImageManager.getInstance().setImageAsync(this.movie.getId(), this.movieImageTempUri, new SetImageAsyncCallback(){
+							@Override
+							public void callback(Boolean success) {
+								if(success)
+									ImageManager.getInstance().cleanupTempImages();
+							}
+	            		});
+	            	
 	            	dataService.Close();
 	            	break;
 	            case android.R.id.home:
@@ -331,14 +472,15 @@ public class MovieActivity extends SingleFragmentHost {
 		@Override
 		public void onStart(){
 			super.onStart();
-			if(this.movie.getImageUri() != null)
-				this.setImage(Uri.parse(this.movie.getImageUri()));
+			if(this.movie.getId() > 0 && this.movieImageTempUri == null)
+				this.setImage(this.movie.getId());
 		}
 		
 		@Override
 		public void onStop(){
 			super.onStop();
 			ImageManager.getInstance().cleanImageView(this.movieImageView);
+			ImageManager.getInstance().cleanupTempImages();
 		}
 		
 		private class GenreAdapter extends ArrayAdapter<Genre> {
@@ -383,20 +525,27 @@ public class MovieActivity extends SingleFragmentHost {
 	        }
 	    }
 		
-		public interface BarcodeSearchAsyncCallback{
-			public void callback(JSONObject result);
+		public class BarcodeSearchResult{
+			public String barcode;
+			public JSONObject result;
 		}
 		
-		private class BarcodeSearchTask extends AsyncTask<String,Integer,JSONObject>{
+		public interface BarcodeSearchAsyncCallback{
+			public void callback(BarcodeSearchResult result);
+		}
+		
+		private class ScanditBarcodeSearchTask extends AsyncTask<String,Integer,BarcodeSearchResult>{
 			BarcodeSearchAsyncCallback callback;
 			
-			public BarcodeSearchTask(BarcodeSearchAsyncCallback callback){
+			public ScanditBarcodeSearchTask(BarcodeSearchAsyncCallback callback){
 				this.callback = callback;
 			}
 			
 			@Override
-			protected JSONObject doInBackground(String... barcode) {
-				JSONObject result = null;
+			protected BarcodeSearchResult doInBackground(String... barcode) {
+				BarcodeSearchResult result = new BarcodeSearchResult();
+				result.barcode = barcode[0];
+				JSONObject resultObject = null;
 		    	HttpClient client = new DefaultHttpClient();
 		    	HttpResponse response;
 		        String responseString = null;
@@ -411,7 +560,7 @@ public class MovieActivity extends SingleFragmentHost {
 						    builder.append(line).append("\n");
 						}
 						JSONTokener tokener = new JSONTokener(builder.toString());
-						result = new JSONObject(tokener);
+						resultObject = new JSONObject(tokener);
 		            } else{
 		                //Closes the connection.
 		                response.getEntity().getContent().close();
@@ -426,11 +575,65 @@ public class MovieActivity extends SingleFragmentHost {
 					e.printStackTrace();
 				}
 		    	
+		    	result.result = resultObject;
 		    	return result;
 			}
 
 			@Override
-			protected void onPostExecute(JSONObject result) {
+			protected void onPostExecute(BarcodeSearchResult result) {
+				this.callback.callback(result);
+			}
+			
+		}
+		
+		private class BBYOpenBarcodeSearchTask extends AsyncTask<String,Integer,BarcodeSearchResult>{
+			BarcodeSearchAsyncCallback callback;
+			
+			public BBYOpenBarcodeSearchTask(BarcodeSearchAsyncCallback callback){
+				this.callback = callback;
+			}
+			
+			@Override
+			protected BarcodeSearchResult doInBackground(String... barcode) {
+				BarcodeSearchResult result = new BarcodeSearchResult();
+				result.barcode = barcode[0];
+				JSONObject resultObject = null;
+		    	HttpClient client = new DefaultHttpClient();
+		    	HttpResponse response;
+		        String responseString = null;
+		    	try {
+		    		String url = String.format("http://api.remix.bestbuy.com/v1/products(upc=%s)?show=name,salePrice&apiKey=%s&format=json", barcode[0], "p2a5rm9yg2cvsxggkcp8mpd6");
+//		    		String url = String.format("https://api.scandit.com/v2/products/%s?key=%s", barcode[0], "bK5Ky4GYpvc_hD56elkfJnGfAEIYO5QU0dDKO0RJLYp");
+		            response = client.execute(new HttpGet(url));
+		            StatusLine statusLine = response.getStatusLine();
+		            if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+		            	BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+						StringBuilder builder = new StringBuilder();
+						for (String line = null; (line = reader.readLine()) != null; ) {
+						    builder.append(line).append("\n");
+						}
+						JSONTokener tokener = new JSONTokener(builder.toString());
+						resultObject = new JSONObject(tokener);
+		            } else{
+		                //Closes the connection.
+		                response.getEntity().getContent().close();
+		                throw new IOException(statusLine.getReasonPhrase());
+		            }
+		        } catch (ClientProtocolException e) {
+		            //TODO Handle problems..
+		        } catch (IOException e) {
+		            //TODO Handle problems..
+		        } catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    	
+		    	result.result = resultObject;
+		    	return result;
+			}
+
+			@Override
+			protected void onPostExecute(BarcodeSearchResult result) {
 				this.callback.callback(result);
 			}
 			

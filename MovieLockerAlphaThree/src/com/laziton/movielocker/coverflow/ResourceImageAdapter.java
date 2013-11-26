@@ -30,7 +30,7 @@ public class ResourceImageAdapter extends BaseCoverFlowImageAdapter {
     @Override
     protected Bitmap createBitmap(final int position) {
         Log.v(TAG, "creating item " + position);
-        final Bitmap bitmap = ImageManager.getInstance().getImage(Uri.parse(this.movies.get(position).getImageUri())).getBitmap();
+        final Bitmap bitmap = ImageManager.getInstance().getImage(this.movies.get(position).getId()).getBitmap();
         return bitmap;
     }
 }

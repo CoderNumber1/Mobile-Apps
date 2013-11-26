@@ -1,25 +1,25 @@
 package com.laziton.movielocker.data;
 
+import java.io.Serializable;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable()
-public class Movie {
+public class Movie implements Serializable {
 	@DatabaseField(columnName = MovieLockerSqlContext.MOVIE_ID, generatedId=true)
 	private int id;
 	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_NAME)
 	private String name;
-	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_DESCRIPTION)
-	private String description;
-	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_IMAGE_URI)
-	private String imageUri;
-	private double price;
-	@DatabaseField(columnName="GenreId")
+	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_PRICE)
+	private Double price;
+	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_OWNED)
+	private boolean owned;
+	@DatabaseField(columnName=MovieLockerSqlContext.MOVIE_GENRE_ID)
 	private int genreId;
 	
 	public Movie(){
 		this.name = "";
-		this.description = "";
 	}
 	
 	public int getId() {
@@ -35,25 +35,19 @@ public class Movie {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
+
+	public boolean getOwned(){
+		return this.owned;
 	}
 	
-	public String getImageUri() {
-		return imageUri;
-	}
-	public void setImageUri(String imageUri) {
-		this.imageUri = imageUri;
+	public void setOwned(boolean owned){
+		this.owned = owned;
 	}
 	
-	public double getPrice() {
+	public Double getPrice() {
 		return price;
 	}
-	public void setPrice(double price) {
+	public void setPrice(Double price) {
 		this.price = price;
 	}
 	

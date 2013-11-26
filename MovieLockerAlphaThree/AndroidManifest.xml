@@ -9,6 +9,7 @@
         android:targetSdkVersion="17" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -40,6 +41,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.laziton.movielocker.GenreListActivity" />
         </activity>
+        <activity android:name="com.laziton.movielocker.CollectionListActivity"
+            		android:label="@string/collection_list_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.laziton.movielocker.MainActivity" />
+        </activity>
+        <activity android:name="com.laziton.movielocker.CollectionActivity"
+            		android:label="@string/collection_title">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.laziton.movielocker.CollectionListActivity" />
+        </activity>
+        <activity android:name="com.laziton.movielocker.CollectionMembersActivity"
+            		android:label="@string/collection_title">
+        </activity>
         <activity android:name="com.laziton.movielocker.MovieListActivity"
             		android:label="@string/movie_list_title">
             <meta-data
@@ -57,6 +73,9 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.laziton.movielocker.MovieListActivity" />
+        </activity>
+        <activity android:name="com.laziton.movielocker.MovieCollectionsActivity"
+            		android:label="@string/movie_title">"
         </activity>
         <activity android:name="com.laziton.movielocker.ScannerActivity"
             		android:label="@string/movie_title">

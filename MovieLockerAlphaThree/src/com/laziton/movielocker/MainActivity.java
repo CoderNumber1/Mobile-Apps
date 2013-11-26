@@ -38,6 +38,17 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+		Button btnCollections = (Button)this.findViewById(R.id.btnCollections);
+		btnCollections.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				Intent collections = new Intent(MainActivity.this, CollectionListActivity.class);
+				MainActivity.this.startActivity(collections);
+			}
+			
+		});
+		
 		Button btnMovieCoverFlow = (Button)this.findViewById(R.id.btnCoverFlow);
 		btnMovieCoverFlow.setOnClickListener(new View.OnClickListener() {
 			

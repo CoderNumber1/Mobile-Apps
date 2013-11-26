@@ -1,8 +1,15 @@
 package com.laziton.movielocker.data;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable()
 public class CollectionMovie {
+	@DatabaseField(columnName = MovieLockerSqlContext.COLLECTIONMOVIE_ID, generatedId=true)
 	private int id;
+	@DatabaseField(columnName = MovieLockerSqlContext.COLLECTIONMOVIE_COLLECTION_ID)
 	private int collectionId;
+	@DatabaseField(columnName = MovieLockerSqlContext.COLLECTIONMOVIE_MOVIE_ID)
 	private int movieId;
 	
 	public int getId() {

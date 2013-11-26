@@ -23,6 +23,13 @@
         	android:layout_marginLeft="5dp"
         	android:layout_marginRight="5dp"/>
     
+    <Button android:id="@+id/btnCollections"
+        	android:text="Collections"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_marginLeft="5dp"
+        	android:layout_marginRight="5dp"/>
+    
     <Button android:id="@+id/btnCoverFlow"
         	android:text="Movies Cover Flow"
         	android:layout_width="match_parent"
