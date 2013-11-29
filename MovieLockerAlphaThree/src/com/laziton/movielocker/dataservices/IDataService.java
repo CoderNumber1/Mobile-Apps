@@ -14,6 +14,7 @@ import android.database.Cursor;
 public interface IDataService {
 	public void Open();
 	public void Close();
+	public boolean IsOpen();
 	
 	public Movie GetMovie(int id);
 	public ArrayList<Movie> GetMovies();

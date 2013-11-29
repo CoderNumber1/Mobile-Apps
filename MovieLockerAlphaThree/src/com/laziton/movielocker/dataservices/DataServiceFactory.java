@@ -21,4 +21,11 @@ public class DataServiceFactory {
 		
 		return result;
 	}
+	
+	public IFilteredMovieDataService GetFilteredMovieDataService(){
+		IDataService dataService = this.GetDataService();
+		IFilteredMovieDataService result = new FilteredMovieDataService(dataService);
+		
+		return result;
+	}
 }

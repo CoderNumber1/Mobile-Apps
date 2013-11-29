@@ -29,5 +29,11 @@
     <string name="movie_radio_wish_text">Wish List</string>
     
     <string name="barcode_scan_text">Scan Barcode</string>
+    
+    <string name="movie_filter_movie_name">Movie Name</string>
+    <string name="movie_filter_select_collections">Collections</string>
+    <string name="movie_filter_select_genres">Genres</string>
+    <string name="movie_filter_owned">Owned</string>
+    <string name="movie_filter_wish_list">Wish List</string>
 
 </resources>

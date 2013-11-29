@@ -20,7 +20,7 @@ import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.data.MovieFilter;
 import com.laziton.movielocker.data.MovieLockerSqlContext;
 
-public class SqlLiteDataService implements IDataService {
+public class SqlLiteDataService implements IDataService, IFilteredMovieDataService {
 	private MovieLockerSqlContext sqlContext;
 	private SQLiteDatabase database;
 	
@@ -36,6 +36,11 @@ public class SqlLiteDataService implements IDataService {
 	@Override
 	public void Close(){
 		this.database.close();
+	}
+	
+	@Override
+	public boolean IsOpen(){
+		return this.database.isOpen();
 	}
 	
 	@Override
@@ -512,20 +517,44 @@ public class SqlLiteDataService implements IDataService {
 
 	@Override
 	public MovieFilter GetMovieFilter(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		MovieFilter result = null;
+		
+		try {
+			result = this.sqlContext.getMovieFilterDao().queryForId(id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 	@Override
 	public MovieFilter GetMovieFilter(String filterName) {
-		// TODO Auto-generated method stub
-		return null;
+		MovieFilter result = null;
+		Dao<MovieFilter,Integer> dao = this.sqlContext.getMovieFilterDao();
+		QueryBuilder<MovieFilter,Integer> query = dao.queryBuilder();
+		
+		try {
+			query.where().eq(MovieLockerSqlContext.MOVIEFILTER_FILTER_NAME, filterName);
+			result = query.queryForFirst();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 	@Override
 	public ArrayList<MovieFilter> GetMovieFilters() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<MovieFilter> result = null;
+		
+		try {
+			result = new ArrayList<MovieFilter>(this.sqlContext.getMovieFilterDao().queryForAll());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -544,5 +573,23 @@ public class SqlLiteDataService implements IDataService {
 	public void DeleteMovieFilter(MovieFilter filter) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public MovieFilter GetMovieFilter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void SetMovieFilter(MovieFilter filter) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayList<Movie> GetFilteredMovies() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
