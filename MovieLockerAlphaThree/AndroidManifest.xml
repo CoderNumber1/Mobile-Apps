@@ -83,6 +83,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.laziton.movielocker.MovieActivity" />
         </activity>
+        <activity android:name="com.laziton.movielocker.MovieFilterActivity"
+            		android:label="@string/movie_title">
+        </activity>
+        <activity android:name="com.laziton.movielocker.IdMultiselectActivity"
+            		android:label="@string/movie_title">
+        </activity>
     </application>
 
 </manifest>

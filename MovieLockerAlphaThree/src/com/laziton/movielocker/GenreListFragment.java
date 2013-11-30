@@ -54,13 +54,17 @@ public class GenreListFragment extends ListFragment {
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.genre_option_menu, menu);
+        inflater.inflate(R.menu.main, menu);
+        menu.findItem(R.id.menu_save).setVisible(false);
+        menu.findItem(R.id.menu_done).setVisible(false);
+        menu.findItem(R.id.menu_filter).setVisible(false);
+        this.getActivity().invalidateOptionsMenu();
     }
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
-			case R.id.genre_menu_add:
+			case R.id.menu_add:
 				Intent genreAdd = new Intent(getActivity(), GenreActivity.class);
 				startActivityForResult(genreAdd, 0);
 				break;

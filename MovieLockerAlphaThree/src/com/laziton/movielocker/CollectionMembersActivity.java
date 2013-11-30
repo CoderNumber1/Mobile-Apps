@@ -10,6 +10,7 @@ import com.laziton.movielocker.data.CollectionMovie;
 import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.dataservices.DataServiceFactory;
 import com.laziton.movielocker.dataservices.IDataService;
+import com.laziton.movielocker.dataservices.IFilteredMovieDataService;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 
 public class CollectionMembersActivity extends SingleFragmentHost {
 	public static String EXTRA_SELECTED_MOVIES = "selectedMovies";
+	public static int EDIT_FILTER_CODE = 1;
 	
 	@Override
 	protected Fragment createFragment() {
@@ -56,9 +58,9 @@ public class CollectionMembersActivity extends SingleFragmentHost {
 			super.onCreate(savedInstanceState);
 			super.setHasOptionsMenu(true);
 			
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
 			dataService.Open();
-			this.movies = dataService.GetMovies();
+			this.movies = dataService.GetFilteredMovies();
 			dataService.Close();
 			
 			this.movieAdapter = new ArrayAdapter<Movie>(getActivity(), android.R.layout.simple_list_item_multiple_choice, this.movies){
@@ -112,13 +114,16 @@ public class CollectionMembersActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.crud_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        menu.findItem(R.id.menu_save).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch(item.getItemId()){
-				case R.id.genre_menu_save:
+				case R.id.menu_done:
 					SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
 			        ArrayList<Movie> selectedItems = new ArrayList<Movie>();
 			        for (int i = 0; i < checked.size(); i++) {
@@ -137,6 +142,10 @@ public class CollectionMembersActivity extends SingleFragmentHost {
 					getActivity().finish();
 					
 					break;
+				case R.id.menu_filter:
+					Intent filterEdit = new Intent(CollectionMembersFragment.this.getActivity(), MovieFilterActivity.class);
+					CollectionMembersFragment.this.startActivityForResult(filterEdit, CollectionMembersActivity.EDIT_FILTER_CODE);
+	            	break;
 				case android.R.id.home:
 	                NavUtils.navigateUpFromSameTask(getActivity());
 	                return true;
@@ -144,13 +153,17 @@ public class CollectionMembersActivity extends SingleFragmentHost {
 			
 			return true;
 		}
-		
-//		public void onListItemClick(ListView listView, View view, int position, long id) {
-//	        Collection collection = ((CollectionsAdapter)getListAdapter()).getItem(position);
-//	        Intent collectionEdit = new Intent(getActivity(), CollectionActivity.class);
-//	        collectionEdit.putExtra(CollectionActivity.COLLECTION_ID, collection.getId());
-//	        startActivityForResult(collectionEdit, 0);
-//	    }
+
+		@Override
+		public void onActivityResult(int requestCode, int resultCode, Intent data) {
+			if(requestCode == CollectionMembersActivity.EDIT_FILTER_CODE){
+				IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
+				this.movieAdapter.clear();
+				this.movieAdapter.addAll(dataService.GetFilteredMovies());
+				this.movieAdapter.notifyDataSetChanged();
+				dataService.Close();
+			}
+		}
 	}
 
 }

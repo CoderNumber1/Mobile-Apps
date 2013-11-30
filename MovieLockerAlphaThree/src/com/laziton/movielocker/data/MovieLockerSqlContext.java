@@ -32,7 +32,8 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 	private static final int DATABASE_V6 = 6;
 	private static final int DATABASE_V7 = 7;
 	private static final int DATABASE_V8 = 8;
-	private static final int DATABASE_VERSION = DATABASE_V8;
+	private static final int DATABASE_V9 = 9;
+	private static final int DATABASE_VERSION = DATABASE_V9;
 	
 	private Dao<CollectionMovie,Integer> collectionMovieDao = null;
 	private Dao<Collection,Integer> collectionDao = null;

@@ -106,27 +106,69 @@ public class IdMultiselectActivity extends SingleFragmentHost {
 			View result = super.onCreateView(inflater, container, savedInstanceState);
 			return result;
 		}
+		
+		@Override
+	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	        super.onCreateOptionsMenu(menu, inflater);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        menu.findItem(R.id.menu_save).setVisible(false);
+	        menu.findItem(R.id.menu_filter).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
+	    }
+		
+		@Override
+		public boolean onOptionsItemSelected(MenuItem item) {
+			switch(item.getItemId()){
+				case R.id.menu_done:
+					SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
+			        ArrayList<Integer> selectedItems = new ArrayList<Integer>();
+			        for (int i = 0; i < checked.size(); i++) {
+			            int position = checked.keyAt(i);
+			            if (checked.valueAt(i)){
+			            	
+			                selectedItems.add(this.selectionsAdapter.getItem(position).id);
+			            }
+			        }
+
+					Intent i = new Intent();
+					i.putExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
+//					Bundle args = new Bundle();
+//					args.putSerializable(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
+//					i.putExtras(args);
+					getActivity().setResult(Activity.RESULT_OK, i);
+					
+					getActivity().finish();
+					
+					break;
+				case android.R.id.home:
+	                NavUtils.navigateUpFromSameTask(getActivity());
+	                return true;
+			}
+			
+			return true;
+		}
 
 		@Override
 		public void onPause() {
-			SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
-	        ArrayList<Integer> selectedItems = new ArrayList<Integer>();
-	        for (int i = 0; i < checked.size(); i++) {
-	            int position = checked.keyAt(i);
-	            if (checked.valueAt(i)){
-	            	
-	                selectedItems.add(this.selectionsAdapter.getItem(position).id);
-	            }
-	        }
-
-			Intent i = new Intent();
-			i.putExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-//			Bundle args = new Bundle();
-//			args.putSerializable(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-//			i.putExtras(args);
-			getActivity().setResult(Activity.RESULT_OK, i);
-			
-			getActivity().finish();
+//			SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
+//	        ArrayList<Integer> selectedItems = new ArrayList<Integer>();
+//	        for (int i = 0; i < checked.size(); i++) {
+//	            int position = checked.keyAt(i);
+//	            if (checked.valueAt(i)){
+//	            	
+//	                selectedItems.add(this.selectionsAdapter.getItem(position).id);
+//	            }
+//	        }
+//
+//			Intent i = new Intent();
+//			i.putExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
+////			Bundle args = new Bundle();
+////			args.putSerializable(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
+////			i.putExtras(args);
+//			getActivity().setResult(Activity.RESULT_OK, i);
+//			
+//			getActivity().finish();
 			
 			super.onPause();
 		}

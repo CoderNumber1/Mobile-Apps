@@ -1,6 +1,8 @@
 package com.laziton.movielocker;
 
 import java.util.ArrayList;
+import java.util.UUID;
+
 import com.laziton.mlalphathree.R;
 import com.laziton.movielocker.data.Collection;
 import com.laziton.movielocker.data.Genre;
@@ -97,7 +99,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 					dataService.Open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedCollections = new ArrayList<Integer>();
-					if(!filter.getCollectionIds().equals(null) && !filter.getCollectionIds().equals("")){
+					if(filter.getCollectionIds() != null && !filter.getCollectionIds().equals("")){
 			        	for(String collection : filter.getCollectionIds().split(",")){
 			        		selectedCollections.add(Integer.parseInt(collection));
 			        	}
@@ -125,7 +127,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 					dataService.Open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedGenres = new ArrayList<Integer>();
-					if(!filter.getGenreIds().equals(null) && !filter.getGenreIds().equals("")){
+					if(filter.getGenreIds() != null && !filter.getGenreIds().equals("")){
 			        	for(String genre : filter.getGenreIds().split(",")){
 			        		selectedGenres.add(Integer.parseInt(genre));
 			        	}
@@ -180,7 +182,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 					for(Integer id : selectedIds){
 						sb.append(id.toString() + ",");
 					}
-					this.filter.setCollectionIds(sb.substring(0, sb.length() - 2));
+					this.filter.setCollectionIds(sb.length() > 0 ? sb.substring(0, sb.length() - 1) : null);
 				}
 				else if(requestCode == MovieFilterActivity.GET_GENRES_CODE){
 					Object selectionsObject = data.getSerializableExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS);
@@ -190,7 +192,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 					for(Integer id : selectedIds){
 						sb.append(id.toString() + ",");
 					}
-					this.filter.setGenreIds(sb.substring(0, sb.length() - 2));
+					this.filter.setGenreIds(sb.length() > 0 ? sb.substring(0, sb.length() - 1) : null);
 				}
 			}
 		}
@@ -198,15 +200,21 @@ public class MovieFilterActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.crud_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_filter).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 	        switch (item.getItemId()) {
-	            case R.id.genre_menu_save:
+	            case R.id.menu_save:
 	            	IFilteredMovieDataService filterService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
 	            	filterService.SetMovieFilter(this.filter);
+	            	getActivity().setResult(RESULT_OK);
+	            	getActivity().finish();
 	            	break;
 	            case android.R.id.home:
 	                NavUtils.navigateUpFromSameTask(getActivity());

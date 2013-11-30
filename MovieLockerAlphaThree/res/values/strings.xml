@@ -18,7 +18,10 @@
     
     <string name="menu_text_new">New</string>
     <string name="menu_text_save">Save</string>
-    <string name="menu_delete_movie_text">Delete</string>
+    <string name="menu_text_done">Done</string> 
+    <string name="menu_delete_text">Delete</string>
+    <string name="menu_edit_text">Edit</string>
+    <string name="menu_filter">Filter</string>
     
     <string name="movie_name_text">Name</string>
     <string name="movie_description_text">Description</string>

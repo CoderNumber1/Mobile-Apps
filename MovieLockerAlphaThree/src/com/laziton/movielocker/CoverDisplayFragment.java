@@ -108,11 +108,11 @@ public class CoverDisplayFragment extends Fragment {
 	}
 	
 	@Override
-	public void onStop(){
-		super.onStop();
+	public void onPause() {
+		super.onPause();
 		ImageManager.getInstance().cleanImageView(this.imgMovieCover);
 	}
-	
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);

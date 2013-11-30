@@ -98,7 +98,11 @@ public class GenreActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.crud_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_filter).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
@@ -107,7 +111,7 @@ public class GenreActivity extends SingleFragmentHost {
 	    	dataService.Open();
 	    	
 	        switch (item.getItemId()) {
-	            case R.id.genre_menu_save:
+	            case R.id.menu_save:
 	            	if(this.genre.getId() > 0)
 	            		dataService.UpdateGenre(this.genre);
 	            	else

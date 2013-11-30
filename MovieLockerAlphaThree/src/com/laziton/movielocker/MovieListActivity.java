@@ -3,11 +3,13 @@ package com.laziton.movielocker;
 import java.util.ArrayList;
 
 import com.laziton.mlalphathree.R;
+import com.laziton.movielocker.CollectionMembersActivity.CollectionMembersFragment;
 import com.laziton.movielocker.GenreListFragment.GenresAdapter;
 import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.data.Genre;
 import com.laziton.movielocker.dataservices.DataServiceFactory;
 import com.laziton.movielocker.dataservices.IDataService;
+import com.laziton.movielocker.dataservices.IFilteredMovieDataService;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -37,20 +39,23 @@ public class MovieListActivity extends SingleFragmentHost {
 	}
 	
 	public static class MovieListFragment extends ListFragment {
+		public static int EDIT_FILTER_CODE = 1;
+		
 		private ArrayList<Movie> movies;
+		private MoviesAdapter moviesAdapter;
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			super.setHasOptionsMenu(true);
 			
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
 			dataService.Open();
-			this.movies = dataService.GetMovies();
+			this.movies = dataService.GetFilteredMovies();
 			dataService.Close();
 			
-			MoviesAdapter adapter = new MoviesAdapter(this.movies);
-			this.setListAdapter(adapter);
+			this.moviesAdapter = new MoviesAdapter(this.movies);
+			this.setListAdapter(moviesAdapter);
 			this.setRetainInstance(true);
 		}
 		
@@ -75,7 +80,7 @@ public class MovieListActivity extends SingleFragmentHost {
 					@Override
 					public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 						switch(item.getItemId()){
-							case R.id.menu_item_delete_contact:
+							case R.id.menu_delete:
 								MoviesAdapter adapter = (MoviesAdapter)getListAdapter();
 								IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
 								dataService.Open();
@@ -120,15 +125,22 @@ public class MovieListActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.movie_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_save).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch(item.getItemId()){
-				case R.id.movie_menu_add:
+				case R.id.menu_add:
 					Intent genreAdd = new Intent(getActivity(), MovieActivity.class);
 					startActivityForResult(genreAdd, 0);
+					break;
+				case R.id.menu_filter:
+					Intent filterEdit = new Intent(MovieListFragment.this.getActivity(), MovieFilterActivity.class);
+					MovieListFragment.this.startActivityForResult(filterEdit, MovieListFragment.EDIT_FILTER_CODE);
 					break;
 				case android.R.id.home:
 	                NavUtils.navigateUpFromSameTask(getActivity());
@@ -138,6 +150,16 @@ public class MovieListActivity extends SingleFragmentHost {
 			return true;
 		}
 		
+		@Override
+		public void onActivityResult(int requestCode, int resultCode, Intent data) {
+			if(requestCode == EDIT_FILTER_CODE){
+				IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
+				this.moviesAdapter.clear();
+				this.moviesAdapter.addAll(dataService.GetFilteredMovies());
+				this.moviesAdapter.notifyDataSetChanged();
+			}
+		}
+
 		public void onListItemClick(ListView listView, View view, int position, long id) {
 	        Movie movie = ((MoviesAdapter)getListAdapter()).getItem(position);
 	        Intent genreEdit = new Intent(getActivity(), MovieActivity.class);

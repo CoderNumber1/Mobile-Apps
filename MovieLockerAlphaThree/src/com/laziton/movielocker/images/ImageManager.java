@@ -8,6 +8,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.laziton.mlalphathree.R;
 import com.laziton.movielocker.MovieLockerApp;
@@ -29,15 +31,17 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 public class ImageManager {
-	LruCache<Integer,BitmapDrawable> memCache;
+	LruCache<Integer,byte[]> memCache;
+	Lock lock;
 	
 	private final static ImageManager _instance = new ImageManager();
 	public static ImageManager getInstance() { return _instance; }
 	private ImageManager(){
-		int maxMem = (int)(Runtime.getRuntime().maxMemory() / 1024);
+		int maxMem = (int)(Runtime.getRuntime().freeMemory() / 1024);
 		int cacheSize = maxMem / 8; //Cache is 1/8 total memory.
 		
-		this.memCache = new LruCache<Integer, BitmapDrawable>(cacheSize);
+		this.memCache = new LruCache<Integer, byte[]>(cacheSize);
+		this.lock = new ReentrantLock();
 	}
 	
 	public Uri generateTempUri(){
@@ -60,11 +64,22 @@ public class ImageManager {
 	
 	public BitmapDrawable getImage(int movieId){
 		BitmapDrawable result = null;
-		result = this.memCache.get(movieId);
-		if(result == null){
-			result = this.loadImage(movieId);
-			if(result != null)
-				this.memCache.put(movieId, result);
+		byte[] resultBytes = this.memCache.get(movieId);
+		if(resultBytes == null){
+			this.lock.lock();
+			try{
+				resultBytes = this.loadImageBytes(movieId);
+				if(resultBytes != null){
+					this.memCache.put(movieId, resultBytes);
+				}
+			}
+			finally{
+				this.lock.unlock();
+			}
+		}
+		
+		if(resultBytes != null){
+			result = this.loadImage(resultBytes);
 		}
 		
 		return result;
@@ -189,12 +204,12 @@ public class ImageManager {
 	}
 	
 	public void cleanImageView(ImageView view){
-//		if(!(view.getDrawable() instanceof BitmapDrawable)){
-//			return;
-//		}
-//		
-//		BitmapDrawable b = (BitmapDrawable)view.getDrawable();
-//		b.getBitmap().recycle();
+		if(!(view.getDrawable() instanceof BitmapDrawable)){
+			return;
+		}
+		
+		BitmapDrawable b = (BitmapDrawable)view.getDrawable();
+		b.getBitmap().recycle();
 		view.setImageDrawable(null);
 	}
 	

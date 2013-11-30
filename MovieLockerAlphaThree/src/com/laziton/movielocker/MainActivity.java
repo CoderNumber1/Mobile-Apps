@@ -58,6 +58,16 @@ public class MainActivity extends Activity {
 				MainActivity.this.startActivity(movieList);
 			}
 		});
+		
+		Button btnFilter = (Button)this.findViewById(R.id.btnFilter);
+		btnFilter.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent movieList = new Intent(MainActivity.this, MovieFilterActivity.class);
+				MainActivity.this.startActivity(movieList);
+			}
+		});
 	}
 
 	@Override

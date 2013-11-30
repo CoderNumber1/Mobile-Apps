@@ -165,7 +165,10 @@ public class CollectionActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.crud_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
@@ -174,7 +177,7 @@ public class CollectionActivity extends SingleFragmentHost {
 	    	dataService.Open();
 	    	
 	        switch (item.getItemId()) {
-	            case R.id.genre_menu_save:
+	            case R.id.menu_save:
 	            	if(this.collection.getId() > 0)
 	            		dataService.UpdateCollection(this.collection);
 	            	else
@@ -182,6 +185,10 @@ public class CollectionActivity extends SingleFragmentHost {
 	            	
 	            	dataService.Close();
 	            	this.btnEditMembers.setActivated(true);
+	            	break;
+	            case R.id.menu_filter:
+	            	Intent filterEdit = new Intent(CollectionFragment.this.getActivity(), MovieFilterActivity.class);
+	            	CollectionFragment.this.startActivityForResult(filterEdit, 0);
 	            	break;
 	            case android.R.id.home:
 	                NavUtils.navigateUpFromSameTask(getActivity());

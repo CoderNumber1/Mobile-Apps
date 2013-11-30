@@ -20,7 +20,7 @@ import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.data.MovieFilter;
 import com.laziton.movielocker.data.MovieLockerSqlContext;
 
-public class SqlLiteDataService implements IDataService, IFilteredMovieDataService {
+public class SqlLiteDataService implements IDataService {
 	private MovieLockerSqlContext sqlContext;
 	private SQLiteDatabase database;
 	
@@ -40,7 +40,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 	
 	@Override
 	public boolean IsOpen(){
-		return this.database.isOpen();
+		return this.database != null && this.database.isOpen();
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		try {
 			Dao<Movie,Integer> d = this.sqlContext.getMovieDao();
 			result = new ArrayList<Movie>();
-			result.addAll(d.queryForAll());
+			result.addAll(d.queryBuilder().orderBy(MovieLockerSqlContext.MOVIE_NAME, true).query());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,7 +76,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 	public int InsertMovie(Movie movie) {
 		int result = 0;
 		try {
-			movie.setId(this.sqlContext.getMovieDao().create(movie));
+			this.sqlContext.getMovieDao().create(movie);
 			result = movie.getId();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -128,7 +128,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		ArrayList<Genre> result = new ArrayList<Genre>();
 		
 		try {
-			result.addAll(this.sqlContext.getGenreDao().queryForAll());
+			result.addAll(this.sqlContext.getGenreDao().queryBuilder().orderBy(MovieLockerSqlContext.GENRE_NAME, true).query());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -183,6 +183,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		QueryBuilder<Movie,Integer> builder = dao.queryBuilder();
 		try {
 			builder.where().in(MovieLockerSqlContext.MOVIE_ID, movieIds);
+			builder.orderBy(MovieLockerSqlContext.MOVIE_NAME, true);
 			result = new ArrayList<Movie>(builder.query());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -278,7 +279,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 	public ArrayList<Collection> GetCollections() {
 		ArrayList<Collection> result = null;
 		try {
-			result = new ArrayList<Collection>(this.sqlContext.getCollectionDao().queryForAll());
+			result = new ArrayList<Collection>(this.sqlContext.getCollectionDao().queryBuilder().orderBy(MovieLockerSqlContext.COLLECTION_NAME, true).query());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -301,6 +302,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		QueryBuilder<Collection,Integer> builder = this.sqlContext.getCollectionDao().queryBuilder();
 		try {
 			builder.where().in(MovieLockerSqlContext.COLLECTION_ID, collectionIds);
+			builder.orderBy(MovieLockerSqlContext.COLLECTION_NAME, true);
 			result = new ArrayList<Collection>(builder.query());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -361,11 +363,11 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 			if(collectionId != null)
 				builder.where().eq(MovieLockerSqlContext.COLLECTIONMOVIE_COLLECTION_ID, collectionId);
 			
-			if(collectionId != null && movieId != null)
-				builder.where().and();
-			
 			if(movieId != null)
 				builder.where().eq(MovieLockerSqlContext.COLLECTIONMOVIE_MOVIE_ID, movieId);
+			
+			if(collectionId != null && movieId != null)
+				builder.where().and(2);
 			
 			result = new ArrayList<CollectionMovie>(builder.query());
 		} catch (SQLException e) {
@@ -384,11 +386,11 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 			if(collectionIds != null)
 				builder.where().in(MovieLockerSqlContext.COLLECTIONMOVIE_COLLECTION_ID, collectionIds);
 			
-			if(collectionIds != null && movieIds != null)
-				builder.where().and();
-			
 			if(movieIds != null)
 				builder.where().in(MovieLockerSqlContext.COLLECTIONMOVIE_MOVIE_ID, movieIds);
+			
+			if(collectionIds != null && movieIds != null)
+				builder.where().and(2);
 			
 			result = new ArrayList<CollectionMovie>(builder.query());
 		} catch (SQLException e) {
@@ -445,7 +447,7 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		QueryBuilder<Movie,Integer> query = dao.queryBuilder();
 		if(filter == null)
 			try {
-				result = new ArrayList<Movie>(dao.queryForAll());
+				result = new ArrayList<Movie>(query.orderBy(MovieLockerSqlContext.MOVIE_NAME, true).query());
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -453,14 +455,13 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 		else{
 			try {
 				boolean needAnd = false;
-				if(!filter.getMovieName().equals(null) && !filter.equals("")){
-					query.where().like(MovieLockerSqlContext.MOVIE_NAME, filter.getMovieName());
+				Where where = query.where();
+				if(filter.getMovieName() != null && !filter.getMovieName().equals("")){
+					where = where.like(MovieLockerSqlContext.MOVIE_NAME, '%' + filter.getMovieName().trim().replace(' ', '%') + '%');
 					needAnd = true;
 				}
 				
-				if(!filter.getGenreIds().equals(null) && !filter.equals("")){
-					if(needAnd)
-						query.where().and();
+				if(filter.getGenreIds() != null && !filter.getGenreIds().equals("")){
 					
 					ArrayList<Integer> genreIds = new ArrayList<Integer>();
 					for(String genre : filter.getGenreIds().split(",")){
@@ -469,13 +470,14 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 						}
 						catch(Exception ex){}
 					}
-					query.where().in(MovieLockerSqlContext.MOVIE_GENRE_ID, genreIds);
+					where = where.in(MovieLockerSqlContext.MOVIE_GENRE_ID, genreIds);
+					if(needAnd)
+						where = where.and(2);
+					
 					needAnd = true;
 				}
 				
-				if(!filter.getCollectionIds().equals(null) && !filter.getCollectionIds().equals("")){
-					if(needAnd)
-						query.where().and();
+				if(filter.getCollectionIds() != null && !filter.getCollectionIds().equals("")){
 					
 					ArrayList<Integer> collectionIds = new ArrayList<Integer>();
 					HashSet<Integer> collectionMovieIds = new HashSet<Integer>();
@@ -489,22 +491,28 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 						collectionMovieIds.add(collectionMovie.getMovieId());
 					}
 					
-					query.where().in(MovieLockerSqlContext.MOVIE_ID, collectionMovieIds);
+					where = where.in(MovieLockerSqlContext.MOVIE_ID, collectionMovieIds);
+					if(needAnd)
+						where = where.and(2);
+					
 					needAnd = true;
 				}
 				
 				if(filter.isOwned() || filter.isWishList()){
-					if(needAnd)
-						query.where().and();
+					
+					if(filter.isOwned())
+						where = where.eq(MovieLockerSqlContext.MOVIE_OWNED, true);
+					if(filter.isWishList())
+						where = where.eq(MovieLockerSqlContext.MOVIE_OWNED, false);
 					
 					if(filter.isOwned() && filter.isWishList())
-						query.where().or(query.where().eq(MovieLockerSqlContext.MOVIE_OWNED, true), query.where().eq(MovieLockerSqlContext.MOVIE_OWNED, false));
-					else if(filter.isOwned())
-						query.where().eq(MovieLockerSqlContext.MOVIE_OWNED, true);
-					else if(filter.isWishList())
-						query.where().eq(MovieLockerSqlContext.MOVIE_OWNED, false);
+						where = where.or(2);
+					
+					if(needAnd)
+						where = where.and(2);
 				}
-				
+
+				query.orderBy(MovieLockerSqlContext.MOVIE_NAME, true);
 				result = new ArrayList<Movie>(query.query());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -559,37 +567,31 @@ public class SqlLiteDataService implements IDataService, IFilteredMovieDataServi
 
 	@Override
 	public void InsertMovieFilter(MovieFilter filter) {
-		// TODO Auto-generated method stub
-		
+		try {
+			this.sqlContext.getMovieFilterDao().create(filter);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void UpdateMovieFilter(MovieFilter filter) {
-		// TODO Auto-generated method stub
-		
+		try {
+			this.sqlContext.getMovieFilterDao().update(filter);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void DeleteMovieFilter(MovieFilter filter) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public MovieFilter GetMovieFilter() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void SetMovieFilter(MovieFilter filter) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ArrayList<Movie> GetFilteredMovies() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			this.sqlContext.getMovieFilterDao().delete(filter);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

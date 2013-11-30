@@ -111,13 +111,17 @@ public class MovieCollectionsActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.crud_option_menu, menu);
+	        inflater.inflate(R.menu.main, menu);
+	        menu.findItem(R.id.menu_add).setVisible(false);
+	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_filter).setVisible(false);
+	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
 			switch(item.getItemId()){
-				case R.id.genre_menu_save:
+				case R.id.menu_save:
 					SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
 			        ArrayList<Collection> selectedItems = new ArrayList<Collection>();
 			        for (int i = 0; i < checked.size(); i++) {
