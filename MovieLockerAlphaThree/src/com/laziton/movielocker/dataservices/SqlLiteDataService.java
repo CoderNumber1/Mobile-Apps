@@ -334,6 +334,7 @@ public class SqlLiteDataService implements IDataService {
 	@Override
 	public void DeleteCollection(Collection collection) {
 		try {
+			this.DeleteCollectionMovies(this.GetCollectionMovies(collection.getId(), null));
 			this.sqlContext.getCollectionDao().delete(collection);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -445,7 +446,7 @@ public class SqlLiteDataService implements IDataService {
 		ArrayList<Movie> result = null;
 		Dao<Movie,Integer> dao = this.sqlContext.getMovieDao();
 		QueryBuilder<Movie,Integer> query = dao.queryBuilder();
-		if(filter == null)
+		if(filter == null || filter.isCleared())
 			try {
 				result = new ArrayList<Movie>(query.orderBy(MovieLockerSqlContext.MOVIE_NAME, true).query());
 			} catch (SQLException e1) {
@@ -498,15 +499,15 @@ public class SqlLiteDataService implements IDataService {
 					needAnd = true;
 				}
 				
-				if(filter.isOwned() || filter.isWishList()){
+				if(filter.isOwned() != filter.isWishList()){
 					
 					if(filter.isOwned())
 						where = where.eq(MovieLockerSqlContext.MOVIE_OWNED, true);
 					if(filter.isWishList())
 						where = where.eq(MovieLockerSqlContext.MOVIE_OWNED, false);
 					
-					if(filter.isOwned() && filter.isWishList())
-						where = where.or(2);
+//					if(filter.isOwned() && filter.isWishList())
+//						where = where.or(2);
 					
 					if(needAnd)
 						where = where.and(2);

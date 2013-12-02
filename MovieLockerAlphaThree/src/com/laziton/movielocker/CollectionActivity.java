@@ -43,10 +43,8 @@ public class CollectionActivity extends SingleFragmentHost {
 
 	public static class CollectionFragment extends Fragment{
 		Collection collection;
-		ArrayList<Movie> collectionMovies;
-		ArrayAdapter<Movie> moviesAdapter;
+		ArrayList<Integer> collectionMovies;
 		EditText txtName;
-		ListView lstMembers;
 		Button btnEditMembers;
 
 		public static CollectionFragment newInstance(int id){
@@ -62,16 +60,18 @@ public class CollectionActivity extends SingleFragmentHost {
 	        super.onCreate(savedInstanceState);
 	        
 	        int id = getArguments().getInt(CollectionActivity.COLLECTION_ID);
+	        this.collectionMovies = new ArrayList<Integer>();
 	        if(id > 0){
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
 		        dataService.Open();
 		        this.collection = dataService.GetCollection(id);
-		        this.collectionMovies = dataService.GetMoviesByCollectionMovies(dataService.GetCollectionMovies(this.collection.getId(), null));
+		        for(CollectionMovie member : dataService.GetCollectionMovies(this.collection.getId(), null)){
+		        	this.collectionMovies.add(member.getMovieId());
+		        }
 		        dataService.Close();
 	        }
 	        else{
 	        	this.collection = new Collection();
-	        	this.collectionMovies = new ArrayList<Movie>();
 	        }
 	        
 	        setHasOptionsMenu(true);
@@ -101,34 +101,14 @@ public class CollectionActivity extends SingleFragmentHost {
 	                // this one too
 	            }
 	        });
-	        
-	        this.lstMembers = (ListView)view.findViewById(R.id.lstMembers);
-	        moviesAdapter = new ArrayAdapter<Movie>(getActivity(), android.R.layout.simple_list_item_1, this.collectionMovies){
-	        	@Override
-				public View getView(int position, View convertView, ViewGroup parent) {
-		            if (null == convertView) {
-		                convertView = getActivity().getLayoutInflater()
-		                    .inflate(android.R.layout.simple_list_item_1, null);
-		            }
-
-		            Movie movie = getItem(position);
-		            TextView titleTextView = (TextView)convertView.findViewById(android.R.id.text1);
-		            titleTextView.setText(movie.getName());
-
-		            return convertView;
-				}
-	        };
-	        this.lstMembers.setAdapter(moviesAdapter);
-	        
+	        	        
 	        this.btnEditMembers = (Button)view.findViewById(R.id.btnEditMembers);
-	        if(this.collection.getId() <= 0)
-	        	this.btnEditMembers.setActivated(false);
 	        this.btnEditMembers.setOnClickListener(new View.OnClickListener() {
 				
 				@Override
 				public void onClick(View arg0) {
 					Intent getMembers = new Intent(getActivity(), CollectionMembersActivity.class);
-					getMembers.putExtra(COLLECTION_ID, collection.getId());
+					getMembers.putExtra(CollectionMembersActivity.EXTRA_COLLECTION_ID, collection.getId());
 					CollectionFragment.this.startActivityForResult(getMembers, GET_COLLECTION_MEMBERS);
 				}
 			});
@@ -138,26 +118,11 @@ public class CollectionActivity extends SingleFragmentHost {
 		
 		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
-			if(resultCode != Activity.RESULT_OK){
-				Log.i("Buggy", "Wrong result");
-			}
 			if(resultCode == Activity.RESULT_OK){
 				if(requestCode == GET_COLLECTION_MEMBERS){
-					Bundle args = data.getExtras();
-					Object result = args.getSerializable(CollectionMembersActivity.EXTRA_SELECTED_MOVIES);
-					ArrayList<Movie> members = (ArrayList<Movie>)result;
-					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-					dataService.Open();
-					dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(this.collection.getId(), null));
-					for(Movie member : members){
-						CollectionMovie memberEntry = new CollectionMovie();
-						memberEntry.setCollectionId(this.collection.getId());
-						memberEntry.setMovieId(member.getId());
-						dataService.InsertCollectionMovie(memberEntry);
-					}
-					this.collectionMovies = dataService.GetMoviesByCollectionMovies(dataService.GetCollectionMovies(this.collection.getId(), null));
-					this.moviesAdapter.notifyDataSetChanged();
-					dataService.Close();
+					Object selectionsObject = data.getSerializableExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS);
+					ArrayList<Integer> selectedIds = (ArrayList<Integer>)selectionsObject;
+					this.collectionMovies = selectedIds;
 				}
 			}
 		}
@@ -183,15 +148,25 @@ public class CollectionActivity extends SingleFragmentHost {
 	            	else
 	            		dataService.InsertCollection(this.collection);
 	            	
+	            	dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(this.collection.getId(), null));
+	            	for(Integer movieId : this.collectionMovies){
+	            		CollectionMovie member = new CollectionMovie();
+	            		member.setCollectionId(this.collection.getId());
+	            		member.setMovieId(movieId);
+	            		dataService.InsertCollectionMovie(member);
+	            	}
+	            	
 	            	dataService.Close();
-	            	this.btnEditMembers.setActivated(true);
+	            	getActivity().setResult(RESULT_OK);
+	                getActivity().finish();
 	            	break;
 	            case R.id.menu_filter:
 	            	Intent filterEdit = new Intent(CollectionFragment.this.getActivity(), MovieFilterActivity.class);
 	            	CollectionFragment.this.startActivityForResult(filterEdit, 0);
 	            	break;
 	            case android.R.id.home:
-	                NavUtils.navigateUpFromSameTask(getActivity());
+	                getActivity().setResult(RESULT_CANCELED);
+	                getActivity().finish();
 	                return true;
 	            default:
 	                return super.onOptionsItemSelected(item);

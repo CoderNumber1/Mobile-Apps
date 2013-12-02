@@ -7,11 +7,12 @@
 	<string name="genre_list_title">Genres</string>
 	<string name="genre_title">Genre</string>
 	<string name="genre_name_text">Name</string>
+	<string name="genre_edit_movies">Movies</string>
 	
 	<string name="collection_list_title">Collections</string>
 	<string name="collection_title">Collection</string>
 	<string name="collection_name_text">Collection Name</string>
-	<string name="collection_edit_members_text">Edit Members</string>
+	<string name="collection_edit_members_text">Movies</string>
 	
 	<string name="movie_list_title">Movies</string>
 	<string name="movie_title">Movie</string>
@@ -22,6 +23,11 @@
     <string name="menu_delete_text">Delete</string>
     <string name="menu_edit_text">Edit</string>
     <string name="menu_filter">Filter</string>
+    <string name="menu_select_all">Select All</string>
+    <string name="menu_select_none">Select None</string>
+    <string name="menu_clear_filter">Clear</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_picture">Picture</string>
     
     <string name="movie_name_text">Name</string>
     <string name="movie_description_text">Description</string>
@@ -30,6 +36,7 @@
     <string name="movie_barcode_text">Barcode</string>
     <string name="movie_radio_owned_text">Owned</string>
     <string name="movie_radio_wish_text">Wish List</string>
+    <string name="movie_edit_collections">Collections</string>
     
     <string name="barcode_scan_text">Scan Barcode</string>
     

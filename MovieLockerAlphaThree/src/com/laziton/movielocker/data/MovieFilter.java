@@ -27,6 +27,13 @@ public class MovieFilter implements Serializable {
 		this.genreIds = "";
 		this.collectionIds = "";
 	}
+	
+	public boolean isCleared(){
+		return (this.getMovieName() == null || this.getMovieName().equals(""))
+				&&(this.getGenreIds() == null || this.getGenreIds().equals(""))
+				&& (this.getCollectionIds() == null || this.getCollectionIds().equals(""))
+				&& (this.isOwned() == this.isWishList());
+	}
 
 	public int getId() {
 		return id;

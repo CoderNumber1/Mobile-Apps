@@ -49,8 +49,8 @@ public class IdMultiselectActivity extends SingleFragmentHost {
 	}
 	
 	public static class IdMultiselectFragment extends ListFragment{
-		private ArrayList<KeyValueSelection> selections;
-		private ArrayAdapter<KeyValueSelection> selectionsAdapter;
+		protected ArrayList<KeyValueSelection> selections;
+		protected ArrayAdapter<KeyValueSelection> selectionsAdapter;
 		
 		public static IdMultiselectFragment newInstance(ArrayList<KeyValueSelection> selections){
 			IdMultiselectFragment result = new IdMultiselectFragment();
@@ -99,9 +99,9 @@ public class IdMultiselectActivity extends SingleFragmentHost {
 		@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//	            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-//	        }
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+	            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+	        }
 			
 			View result = super.onCreateView(inflater, container, savedInstanceState);
 			return result;
@@ -110,7 +110,7 @@ public class IdMultiselectActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.main, menu);
+	        inflater.inflate(R.menu.id_multiselect_menu, menu);
 	        menu.findItem(R.id.menu_add).setVisible(false);
 	        menu.findItem(R.id.menu_save).setVisible(false);
 	        menu.findItem(R.id.menu_filter).setVisible(false);
@@ -133,44 +133,28 @@ public class IdMultiselectActivity extends SingleFragmentHost {
 
 					Intent i = new Intent();
 					i.putExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-//					Bundle args = new Bundle();
-//					args.putSerializable(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-//					i.putExtras(args);
 					getActivity().setResult(Activity.RESULT_OK, i);
 					
 					getActivity().finish();
 					
 					break;
+				case R.id.menu_select_all:
+					for(KeyValueSelection selection : this.selections){
+						this.getListView().setItemChecked(this.selections.indexOf(selection), true);
+					}
+					break;
+				case R.id.menu_select_none:
+					for(KeyValueSelection selection : this.selections){
+						this.getListView().setItemChecked(this.selections.indexOf(selection), false);
+					}
+					break;
 				case android.R.id.home:
-	                NavUtils.navigateUpFromSameTask(getActivity());
+	                getActivity().setResult(RESULT_CANCELED);
+	                getActivity().finish();
 	                return true;
 			}
 			
 			return true;
-		}
-
-		@Override
-		public void onPause() {
-//			SparseBooleanArray checked = this.getListView().getCheckedItemPositions();
-//	        ArrayList<Integer> selectedItems = new ArrayList<Integer>();
-//	        for (int i = 0; i < checked.size(); i++) {
-//	            int position = checked.keyAt(i);
-//	            if (checked.valueAt(i)){
-//	            	
-//	                selectedItems.add(this.selectionsAdapter.getItem(position).id);
-//	            }
-//	        }
-//
-//			Intent i = new Intent();
-//			i.putExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-////			Bundle args = new Bundle();
-////			args.putSerializable(IdMultiselectActivity.EXTRA_SELECTED_IDS, selectedItems);
-////			i.putExtras(args);
-//			getActivity().setResult(Activity.RESULT_OK, i);
-//			
-//			getActivity().finish();
-			
-			super.onPause();
 		}
 	}
 }

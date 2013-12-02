@@ -41,6 +41,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.laziton.movielocker.GenreListActivity" />
         </activity>
+        <activity android:name="com.laziton.movielocker.GenreMembersActivity"
+            		android:label="@string/genre_edit_movies"></activity>
         <activity android:name="com.laziton.movielocker.CollectionListActivity"
             		android:label="@string/collection_list_title">
             <meta-data

@@ -19,18 +19,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.NavUtils;
 import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MovieListActivity extends SingleFragmentHost {
+	public static int ACTIVITY_CREATE_MOVIE = 2;
 
 	@Override
 	protected Fragment createFragment() {
@@ -49,14 +53,22 @@ public class MovieListActivity extends SingleFragmentHost {
 			super.onCreate(savedInstanceState);
 			super.setHasOptionsMenu(true);
 			
-			IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
-			dataService.Open();
-			this.movies = dataService.GetFilteredMovies();
-			dataService.Close();
-			
+			this.movies = new ArrayList<Movie>();
 			this.moviesAdapter = new MoviesAdapter(this.movies);
 			this.setListAdapter(moviesAdapter);
 			this.setRetainInstance(true);
+			this.populateList(false);
+		}
+		
+		private void populateList(boolean notify){
+			this.movies.clear();
+			IFilteredMovieDataService dataService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
+			dataService.Open();
+			this.movies.addAll(dataService.GetFilteredMovies());
+			dataService.Close();
+			
+			if(notify)
+				this.moviesAdapter.notifyDataSetChanged();
 		}
 		
 		@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -92,7 +104,7 @@ public class MovieListActivity extends SingleFragmentHost {
 								}
 								dataService.Close();
 								mode.finish();
-								adapter.notifyDataSetChanged();
+								populateList(true);
 								return true;
 							default:
 								return false;
@@ -136,7 +148,7 @@ public class MovieListActivity extends SingleFragmentHost {
 			switch(item.getItemId()){
 				case R.id.menu_add:
 					Intent genreAdd = new Intent(getActivity(), MovieActivity.class);
-					startActivityForResult(genreAdd, 0);
+					startActivityForResult(genreAdd, MovieListActivity.ACTIVITY_CREATE_MOVIE);
 					break;
 				case R.id.menu_filter:
 					Intent filterEdit = new Intent(MovieListFragment.this.getActivity(), MovieFilterActivity.class);
@@ -150,6 +162,32 @@ public class MovieListActivity extends SingleFragmentHost {
 			return true;
 		}
 		
+	    @Override
+		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	    	this.getActivity().getMenuInflater().inflate(R.menu.movie_list_item_context, menu);
+		}
+
+		@Override
+		public boolean onContextItemSelected(MenuItem item) {
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+			int position = info.position;
+			MoviesAdapter adapter = (MoviesAdapter)this.getListAdapter();
+			Movie movie = adapter.getItem(position);
+			
+			switch(item.getItemId()){
+				case R.id.menu_delete:
+					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+					dataService.Open();
+					
+					dataService.DeleteMovie(movie);
+					dataService.Close();
+					this.populateList(true);
+					return true;
+			}
+			
+			return super.onContextItemSelected(item);
+		}
+		
 		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
 			if(requestCode == EDIT_FILTER_CODE){
@@ -157,6 +195,11 @@ public class MovieListActivity extends SingleFragmentHost {
 				this.moviesAdapter.clear();
 				this.moviesAdapter.addAll(dataService.GetFilteredMovies());
 				this.moviesAdapter.notifyDataSetChanged();
+			}
+			else if(resultCode == RESULT_OK){
+				if(requestCode == MovieListActivity.ACTIVITY_CREATE_MOVIE){
+					this.populateList(true);
+				}
 			}
 		}
 

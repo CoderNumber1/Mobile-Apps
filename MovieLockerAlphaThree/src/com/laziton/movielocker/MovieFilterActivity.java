@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 
 public class MovieFilterActivity extends SingleFragmentHost {
@@ -70,9 +72,9 @@ public class MovieFilterActivity extends SingleFragmentHost {
 	    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
 	        View view = inflater.inflate(R.layout.movie_filter_fragment, parent, false);
 	  
-	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-	            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-	        }   
+//	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//	            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+//	        }   
 	        
 	        this.txtName = (EditText)view.findViewById(R.id.txtName);
 	        this.txtName.setText(this.filter.getMovieName());
@@ -152,21 +154,23 @@ public class MovieFilterActivity extends SingleFragmentHost {
 	        this.chkOwned.setChecked(this.filter.isOwned());
 	        this.chkWishlist.setChecked(this.filter.isWishList());
 	        
-	        this.chkOwned.setOnClickListener(new View.OnClickListener() {
-				
+	        this.chkOwned.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+
 				@Override
-				public void onClick(View v) {
-					filter.setOwned(((CheckBox)v).isChecked());
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					filter.setOwned(isChecked);
 				}
-			});
+	        	
+	        });
 			
-			this.chkWishlist.setOnClickListener(new View.OnClickListener() {
-				
+	        this.chkWishlist.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+
 				@Override
-				public void onClick(View v) {
-					filter.setWishList(((CheckBox)v).isChecked());
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					filter.setWishList(isChecked);
 				}
-			});
+	        	
+	        });
 	        
 	        return view; 
 	    }
@@ -200,9 +204,9 @@ public class MovieFilterActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.main, menu);
+	        inflater.inflate(R.menu.filter_menu, menu);
 	        menu.findItem(R.id.menu_add).setVisible(false);
-	        menu.findItem(R.id.menu_done).setVisible(false);
+	        menu.findItem(R.id.menu_save).setVisible(false);
 	        menu.findItem(R.id.menu_filter).setVisible(false);
 	        this.getActivity().invalidateOptionsMenu();
 	    }
@@ -210,15 +214,22 @@ public class MovieFilterActivity extends SingleFragmentHost {
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 	        switch (item.getItemId()) {
-	            case R.id.menu_save:
+		        case R.id.menu_clear:
+		        	this.txtName.setText("");
+		        	this.filter.setGenreIds(null);
+		        	this.filter.setCollectionIds(null);
+		        	this.chkOwned.setChecked(true);
+		        	this.chkWishlist.setChecked(true);
+		        	break;
+	            case R.id.menu_done:
 	            	IFilteredMovieDataService filterService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
 	            	filterService.SetMovieFilter(this.filter);
 	            	getActivity().setResult(RESULT_OK);
 	            	getActivity().finish();
 	            	break;
-	            case android.R.id.home:
-	                NavUtils.navigateUpFromSameTask(getActivity());
-	                return true;
+//	            case android.R.id.home:
+//	                NavUtils.navigateUpFromSameTask(getActivity());
+//	                return true;
 	            default:
 	                return super.onOptionsItemSelected(item);
 	        }

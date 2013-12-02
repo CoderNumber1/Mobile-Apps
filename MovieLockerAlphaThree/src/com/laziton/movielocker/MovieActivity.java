@@ -27,6 +27,7 @@ import org.json.JSONTokener;
 
 import com.laziton.mlalphathree.R;
 import com.laziton.movielocker.CollectionActivity.CollectionFragment;
+import com.laziton.movielocker.CollectionListActivity.CollectionListFragment.CollectionsAdapter;
 import com.laziton.movielocker.data.Collection;
 import com.laziton.movielocker.data.CollectionMovie;
 import com.laziton.movielocker.data.Genre;
@@ -60,12 +61,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ActionMode;
+import android.view.ActionMode.Callback;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -76,6 +81,8 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class MovieActivity extends SingleFragmentHost {
@@ -92,8 +99,7 @@ public class MovieActivity extends SingleFragmentHost {
 
 	public static class MovieFragment extends Fragment{
 		Movie movie;
-		ArrayList<Collection> movieCollections;
-		ArrayAdapter<Collection> collectionsAdapter;
+		ArrayList<Integer> collections;
 		Uri movieImageTempUri;
 		Bitmap movieImage;
 		
@@ -104,7 +110,7 @@ public class MovieActivity extends SingleFragmentHost {
 		ImageButton btnTakePicture;
 		ImageView movieImageView;
 		Button btnScanBarcode;
-		ListView lstMembers;
+//		ListView lstMembers;
 		Button btnEditMembers;
 		
 		public static MovieFragment newInstance(int id){
@@ -120,16 +126,18 @@ public class MovieActivity extends SingleFragmentHost {
 	        super.onCreate(savedInstanceState);
 	        
 	        int id = getArguments().getInt(MovieActivity.MOVIE_ID);
+	        this.collections = new ArrayList<Integer>();
 	        if(id > 0){
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
 		        dataService.Open();
 		        this.movie = dataService.GetMovie(id);
-		        this.movieCollections = dataService.GetCollectionsByCollectionMovies(dataService.GetCollectionMovies(null, id));
+		        for(CollectionMovie member : dataService.GetCollectionMovies(null, id)){
+		        	this.collections.add(member.getCollectionId());
+		        }
 		        dataService.Close();
 	        }
 	        else{
 	        	this.movie = new Movie();
-	        	this.movieCollections = new ArrayList<Collection>();
 	        }
 	        
 	        setHasOptionsMenu(true);
@@ -145,6 +153,74 @@ public class MovieActivity extends SingleFragmentHost {
 	        }   
 	        
 	        this.movieImageView = (ImageView)view.findViewById(R.id.imgMoviePhoto);
+//	        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+//	        	this.registerForContextMenu(this.movieImageView);
+//	        }
+//	        else{
+	        	this.movieImageView.setOnLongClickListener(new View.OnLongClickListener() {
+					
+					@Override
+					public boolean onLongClick(View v) {
+						getActivity().startActionMode(new Callback(){
+
+							@Override
+							public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+								switch(item.getItemId()){
+									case R.id.menu_picture:
+										movieImageTempUri = ImageManager.getInstance().generateTempUri();
+										List<Intent> cameraIntents = new ArrayList<Intent>();
+										Intent getCameraImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+										PackageManager pm = getActivity().getPackageManager();
+										for(ResolveInfo res : pm.queryIntentActivities(getCameraImage, 0)){
+											final String packageName = res.activityInfo.packageName;
+											final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+											cameraIntent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+											cameraIntent.setPackage(packageName);
+											cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, movieImageTempUri);
+											cameraIntent.putExtra("return-data", true);
+											cameraIntents.add(cameraIntent);
+										}
+										
+										Intent imageSelectIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+										
+										final Intent chooser = Intent.createChooser(imageSelectIntent, "Complete action using");
+										chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,  cameraIntents.toArray(new Parcelable[]{}));
+										
+										startActivityForResult(chooser, ACTIVITY_GET_IMAGE);
+										return true;
+								}
+								
+								return true;
+							}
+
+							@Override
+							public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+								MenuInflater inflater = mode.getMenuInflater();
+								inflater.inflate(R.menu.cover_image_menu, menu);
+								return true;
+							}
+
+							@Override
+							public void onDestroyActionMode(ActionMode arg0) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public boolean onPrepareActionMode(ActionMode arg0, Menu arg1) {
+								// TODO Auto-generated method stub
+								return false;
+							}
+							
+						});
+						v.setSelected(true);
+						
+//						getActivity().openContextMenu(v);
+						return true;
+					}
+				});
+	        	
+//	        }
 	        
 	        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
 	        dataService.Open();
@@ -203,73 +279,14 @@ public class MovieActivity extends SingleFragmentHost {
 	                // this one too
 	            }
 	        });
-	        
-	        this.txtBarcode = (EditText)view.findViewById(R.id.txtBarcode);
-	        
-	        btnTakePicture = (ImageButton)view.findViewById(R.id.btnTakePicture);
-	        btnTakePicture.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View arg0) {
-					movieImageTempUri = ImageManager.getInstance().generateTempUri();
-					List<Intent> cameraIntents = new ArrayList<Intent>();
-					Intent getCameraImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-					PackageManager pm = getActivity().getPackageManager();
-					for(ResolveInfo res : pm.queryIntentActivities(getCameraImage, 0)){
-						final String packageName = res.activityInfo.packageName;
-						final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-						cameraIntent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
-						cameraIntent.setPackage(packageName);
-						cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, movieImageTempUri);
-						cameraIntent.putExtra("return-data", true);
-						cameraIntents.add(cameraIntent);
-					}
-					
-					Intent imageSelectIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-					
-					final Intent chooser = Intent.createChooser(imageSelectIntent, "Complete action using");
-					chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,  cameraIntents.toArray(new Parcelable[]{}));
-					
-					startActivityForResult(chooser, ACTIVITY_GET_IMAGE);
-				}
-			});
-	        
-	        this.btnScanBarcode = (Button)view.findViewById(R.id.btnScanBarcode);
-	        this.btnScanBarcode.setOnClickListener(new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View arg0) {
-					Intent scanIntent = new Intent(getActivity(), ScannerActivity.class);
-					startActivityForResult(scanIntent, MovieActivity.ACTIVITY_GET_BARCODE);
-				}
-			});
-	        
-	        this.lstMembers = (ListView)view.findViewById(R.id.lstMembers);
-	        collectionsAdapter = new ArrayAdapter<Collection>(getActivity(), android.R.layout.simple_list_item_1, this.movieCollections){
-	        	@Override
-				public View getView(int position, View convertView, ViewGroup parent) {
-		            if (null == convertView) {
-		                convertView = getActivity().getLayoutInflater()
-		                    .inflate(android.R.layout.simple_list_item_1, null);
-		            }
 
-		            Collection collection = getItem(position);
-		            TextView titleTextView = (TextView)convertView.findViewById(android.R.id.text1);
-		            titleTextView.setText(collection.getName());
-
-		            return convertView;
-				}
-	        };
-	        this.lstMembers.setAdapter(collectionsAdapter);
-	        
 	        this.btnEditMembers = (Button)view.findViewById(R.id.btnEditMembers);
-	        if(this.movie.getId() <= 0)
-	        	this.btnEditMembers.setActivated(false);
 	        this.btnEditMembers.setOnClickListener(new View.OnClickListener() {
 				
 				@Override
 				public void onClick(View arg0) {
 					Intent getMembers = new Intent(getActivity(), MovieCollectionsActivity.class);
-					getMembers.putExtra(MOVIE_ID, movie.getId());
+					getMembers.putExtra(MovieCollectionsActivity.EXTRA_MOVIE_ID, movie.getId());
 					MovieFragment.this.startActivityForResult(getMembers, ACTIVITY_GET_COLLECTIONS);
 				}
 			});
@@ -306,11 +323,46 @@ public class MovieActivity extends SingleFragmentHost {
 	    }
 		
 		@Override
+		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	    	this.getActivity().getMenuInflater().inflate(R.menu.cover_image_menu, menu);
+		}
+
+		@Override
+		public boolean onContextItemSelected(MenuItem item) {
+			switch(item.getItemId()){
+				case R.id.menu_picture:
+					movieImageTempUri = ImageManager.getInstance().generateTempUri();
+					List<Intent> cameraIntents = new ArrayList<Intent>();
+					Intent getCameraImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+					PackageManager pm = getActivity().getPackageManager();
+					for(ResolveInfo res : pm.queryIntentActivities(getCameraImage, 0)){
+						final String packageName = res.activityInfo.packageName;
+						final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+						cameraIntent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+						cameraIntent.setPackage(packageName);
+						cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, movieImageTempUri);
+						cameraIntent.putExtra("return-data", true);
+						cameraIntents.add(cameraIntent);
+					}
+					
+					Intent imageSelectIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+					
+					final Intent chooser = Intent.createChooser(imageSelectIntent, "Complete action using");
+					chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,  cameraIntents.toArray(new Parcelable[]{}));
+					
+					startActivityForResult(chooser, ACTIVITY_GET_IMAGE);
+					return true;
+			}
+			
+			return super.onContextItemSelected(item);
+		}
+		
+		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
 			if(resultCode == RESULT_OK){
 				if(requestCode == MovieActivity.ACTIVITY_GET_BARCODE){
 					String barcode = data.getStringExtra(ScannerActivity.BARCODE_KEY);
-					this.txtBarcode.setText(barcode);
+//					this.txtBarcode.setText(barcode);
 					new BBYOpenBarcodeSearchTask(new BarcodeSearchAsyncCallback(){
 
 						
@@ -332,9 +384,13 @@ public class MovieActivity extends SingleFragmentHost {
 										@Override
 										public void callback(BarcodeSearchResult result) {
 											try {
+												if(result.result.has("basic")){
 												JSONObject basic = result.result.getJSONObject("basic");
-												String name = basic.getString("name");
-												txtName.setText(name);
+													if(basic.has("name")){
+														String name = basic.getString("name");
+														txtName.setText(name);
+													}
+												}
 											} catch (JSONException e) {
 												e.printStackTrace();
 											}
@@ -373,22 +429,9 @@ public class MovieActivity extends SingleFragmentHost {
 					}
 				}
 				else if(requestCode == MovieActivity.ACTIVITY_GET_COLLECTIONS){
-					Bundle args = data.getExtras();
-					Object result = args.getSerializable(MovieCollectionsActivity.EXTRA_SELECTED_COLLECTIONS);
-					ArrayList<Collection> members = (ArrayList<Collection>)result;
-					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-					dataService.Open();
-					dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(null, this.movie.getId()));
-					for(Collection member : members){
-						CollectionMovie memberEntry = new CollectionMovie();
-						memberEntry.setMovieId(this.movie.getId());
-						memberEntry.setCollectionId(member.getId());
-						dataService.InsertCollectionMovie(memberEntry);
-					}
-					this.movieCollections.clear(); 
-					this.movieCollections.addAll(dataService.GetCollectionsByCollectionMovies(((dataService.GetCollectionMovies(null, this.movie.getId())))));
-					this.collectionsAdapter.notifyDataSetChanged();
-					dataService.Close();
+					Object selectionsObject = data.getSerializableExtra(IdMultiselectActivity.EXTRA_SELECTED_IDS);
+					ArrayList<Integer> selectedIds = (ArrayList<Integer>)selectionsObject;
+					this.collections = selectedIds;
 				}
 			}
 		}
@@ -433,10 +476,7 @@ public class MovieActivity extends SingleFragmentHost {
 		@Override
 	    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 	        super.onCreateOptionsMenu(menu, inflater);
-	        inflater.inflate(R.menu.main, menu);
-	        menu.findItem(R.id.menu_add).setVisible(false);
-	        menu.findItem(R.id.menu_done).setVisible(false);
-	        menu.findItem(R.id.menu_filter).setVisible(false);
+	        inflater.inflate(R.menu.movie_menu, menu);
 	        this.getActivity().invalidateOptionsMenu();
 	    }
 		
@@ -461,10 +501,25 @@ public class MovieActivity extends SingleFragmentHost {
 							}
 	            		});
 	            	
+	            	dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(null, this.movie.getId()));
+	            	for(Integer collectionId : this.collections){
+	            		CollectionMovie member = new CollectionMovie();
+	            		member.setCollectionId(collectionId);
+	            		member.setMovieId(this.movie.getId());
+	            		dataService.InsertCollectionMovie(member);
+	            	}
+	            	
 	            	dataService.Close();
+	            	getActivity().setResult(RESULT_OK);
+	            	getActivity().finish();
+	            	break;
+	            case R.id.menu_scan:
+	            	Intent scanIntent = new Intent(getActivity(), ScannerActivity.class);
+					startActivityForResult(scanIntent, MovieActivity.ACTIVITY_GET_BARCODE);
 	            	break;
 	            case android.R.id.home:
-	                NavUtils.navigateUpFromSameTask(getActivity());
+	            	getActivity().setResult(RESULT_OK);
+	            	getActivity().finish();
 	                return true;
 	            default:
 	                return super.onOptionsItemSelected(item);
