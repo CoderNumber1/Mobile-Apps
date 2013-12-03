@@ -1,5 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Movie Locker</string>
+    
+	<string name="genre_list_title">Genres</string>
+	<string name="genre_title">Genre</string>
+	<string name="genre_name_text">Genre Name</string>
+	<string name="genre_edit_movies">Movies</string>
+	
+	<string name="collection_list_title">Collections</string>
+	<string name="collection_title">Collection</string>
+	<string name="collection_name_text">Collection Name</string>
+	<string name="collection_edit_movies">Movies</string>
+	
+    <string name="menu_text_new">New</string>
+    <string name="menu_text_save">Save</string>
+    <string name="menu_text_done">Done</string> 
+    <string name="menu_delete_text">Delete</string>
+    <string name="menu_edit_text">Edit</string>
+    <string name="menu_filter">Filter</string>
+    <string name="menu_select_all">Select All</string>
+    <string name="menu_select_none">Select None</string>
+    <string name="menu_clear_filter">Clear</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_picture">Picture</string>
+    
+    <string name="movie_list_title">Movies</string>
+	<string name="movie_title">Movie</string>
+    <string name="movie_name_text">Movie Name</string>
+    <string name="movie_price_text">Price</string>
+    <string name="movie_genre_text">Genre</string>
+    <string name="movie_radio_owned_text">Owned</string>
+    <string name="movie_radio_wish_text">Wish List</string>
+    <string name="movie_edit_collections">Collections</string>
+    
+    <string name="movie_filter_title">Movie Filter</string>
+    <string name="movie_filter_movie_name">Movie Name</string>
+    <string name="movie_filter_select_collections">Collections</string>
+    <string name="movie_filter_select_genres">Genres</string>
+    <string name="movie_filter_owned">Owned</string>
+    <string name="movie_filter_wish_list">Wish List</string>
+    
+    <string name="id_multi_select_title">Select</string>
 
 </resources>

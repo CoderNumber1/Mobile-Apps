@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <view class="com.laziton.movielocker.coverflow.CoverFlow" xmlns:coverflow="http://schemas.android.com/apk/lib/com.laziton.movielocker.coverflow"
+                coverflow:imageWidth="100dip" coverflow:imageHeight="150dip" android:id="@+id/cvrMovies" android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:layout_marginTop="5dip">
+        </view>
+        
+    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
+                android:padding="5dip" android:id="@+id/txtMovieName"></TextView>
+<!--     <com.laziton.movielocker.coverflow.CoverFlow xmlns:coverflow="http://schemas.android.com/apk/res/com.laziton.movielocker.coverflow" -->
+<!--                 coverflow:imageWidth="100dip" coverflow:imageHeight="150dip" coverflow:withReflection="true" -->
+<!--                 coverflow:imageReflectionRatio="0.2" coverflow:reflectionGap="2dip" android:id="@+id/coverflowReflect" -->
+<!--                 android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="5dip" /> -->
+
+</LinearLayout>
