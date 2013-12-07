@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+@SuppressWarnings("serial")
 @DatabaseTable()
 public class Collection implements Serializable {
 	@DatabaseField(columnName = MovieLockerSqlContext.COLLECTION_ID, generatedId=true)

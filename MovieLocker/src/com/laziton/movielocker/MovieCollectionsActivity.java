@@ -35,12 +35,12 @@ public class MovieCollectionsActivity extends IdMultiselectActivity {
 			this.selections.clear();
 			ArrayList<Integer> movieCollections = new ArrayList<Integer>();
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-			dataService.Open();
-			for(CollectionMovie member : dataService.GetCollectionMovies(null, this.movieId)){
+			dataService.open();
+			for(CollectionMovie member : dataService.getCollectionMovies(null, this.movieId)){
 				movieCollections.add(member.getCollectionId());
 			}
 			
-			for(Collection collection : dataService.GetCollections()){
+			for(Collection collection : dataService.getCollections()){
 				KeyValueSelection selection = new KeyValueSelection();
 				selection.id = collection.getId();
 				selection.name = collection.getName();

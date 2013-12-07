@@ -96,7 +96,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 				public void onClick(View arg0) {
 					Intent getCollections = new Intent(getActivity(), IdMultiselectActivity.class);
 					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-					dataService.Open();
+					dataService.open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedCollections = new ArrayList<Integer>();
 					if(filter.getCollectionIds() != null && !filter.getCollectionIds().equals("")){
@@ -105,7 +105,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 			        	}
 			        }
 					
-					for(Collection collection : dataService.GetCollections()){
+					for(Collection collection : dataService.getCollections()){
 						IdMultiselectActivity.KeyValueSelection selection = new IdMultiselectActivity.KeyValueSelection();
 						selection.name = collection.getName();
 						selection.id = collection.getId();
@@ -124,7 +124,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 				public void onClick(View arg0) {
 					Intent getGenres = new Intent(getActivity(), IdMultiselectActivity.class);
 					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-					dataService.Open();
+					dataService.open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedGenres = new ArrayList<Integer>();
 					if(filter.getGenreIds() != null && !filter.getGenreIds().equals("")){
@@ -133,7 +133,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 			        	}
 			        }
 					
-					for(Genre genre : dataService.GetGenres()){
+					for(Genre genre : dataService.getGenres()){
 						IdMultiselectActivity.KeyValueSelection selection = new IdMultiselectActivity.KeyValueSelection();
 						selection.name = genre.getName();
 						selection.id = genre.getId();
@@ -173,6 +173,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 	        return view; 
 	    }
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
 			if(resultCode == RESULT_OK){

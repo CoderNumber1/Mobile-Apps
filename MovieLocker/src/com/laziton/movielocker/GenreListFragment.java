@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,9 +31,9 @@ public class GenreListFragment extends ListFragment {
 		super.setHasOptionsMenu(true);
 		
 		IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-		dataService.Open();
-		this.genres = dataService.GetGenres();
-		dataService.Close();
+		dataService.open();
+		this.genres = dataService.getGenres();
+		dataService.close();
 		
 		GenresAdapter adapter = new GenresAdapter(this.genres);
 		this.setListAdapter(adapter);

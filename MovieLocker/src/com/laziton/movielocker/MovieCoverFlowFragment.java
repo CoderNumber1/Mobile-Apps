@@ -1,6 +1,5 @@
 package com.laziton.movielocker;
 
-import com.laziton.movielocker.MovieCoverFlowViewPager.CoverFlowAdapter;
 import com.laziton.movielocker.store.FilteredMovieStore;
 import com.laziton.movielocker.store.FilteredMovieStore.IMovieStoreMonitor;
 

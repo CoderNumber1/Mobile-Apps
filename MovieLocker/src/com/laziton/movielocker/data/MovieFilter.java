@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 @DatabaseTable()
 public class MovieFilter implements Serializable {
 	@DatabaseField(columnName = MovieLockerSqlContext.MOVIEFILTER_ID, generatedId=true)

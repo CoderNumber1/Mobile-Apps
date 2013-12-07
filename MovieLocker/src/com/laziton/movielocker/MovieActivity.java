@@ -106,12 +106,12 @@ public class MovieActivity extends SingleFragmentHost {
 	        this.collections = new ArrayList<Integer>();
 	        if(id > 0){
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-		        dataService.Open();
-		        this.movie = dataService.GetMovie(id);
-		        for(CollectionMovie member : dataService.GetCollectionMovies(null, id)){
+		        dataService.open();
+		        this.movie = dataService.getMovie(id);
+		        for(CollectionMovie member : dataService.getCollectionMovies(null, id)){
 		        	this.collections.add(member.getCollectionId());
 		        }
-		        dataService.Close();
+		        dataService.close();
 	        }
 	        else{
 	        	this.movie = new Movie();
@@ -197,8 +197,8 @@ public class MovieActivity extends SingleFragmentHost {
 //	        }
 	        
 	        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-	        dataService.Open();
-	        ArrayList<Genre> genres = dataService.GetGenres();
+	        dataService.open();
+	        ArrayList<Genre> genres = dataService.getGenres();
 	        GenreAdapter adapter = new GenreAdapter(genres); 
 	        spnGenre = (Spinner)view.findViewById(R.id.spnGenre);
 	        spnGenre.setAdapter(adapter);
@@ -457,14 +457,14 @@ public class MovieActivity extends SingleFragmentHost {
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-	    	dataService.Open();
+	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {
 	            case R.id.menu_save:
 	            	if(this.movie.getId() > 0)
-	            		dataService.UpdateMovie(this.movie);
+	            		dataService.updateMovie(this.movie);
 	            	else
-	            		dataService.InsertMovie(this.movie);
+	            		dataService.insertMovie(this.movie);
 	            	
 	            	if(this.movieImageTempUri != null)
 	            		ImageManager.getInstance().setImageAsync(this.movie.getId(), this.movieImageTempUri, new SetImageAsyncCallback(){
@@ -475,15 +475,15 @@ public class MovieActivity extends SingleFragmentHost {
 							}
 	            		});
 	            	
-	            	dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(null, this.movie.getId()));
+	            	dataService.deleteCollectionMovies(dataService.getCollectionMovies(null, this.movie.getId()));
 	            	for(Integer collectionId : this.collections){
 	            		CollectionMovie member = new CollectionMovie();
 	            		member.setCollectionId(collectionId);
 	            		member.setMovieId(this.movie.getId());
-	            		dataService.InsertCollectionMovie(member);
+	            		dataService.insertCollectionMovie(member);
 	            	}
 	            	
-	            	dataService.Close();
+	            	dataService.close();
 	            	getActivity().setResult(RESULT_OK);
 	            	getActivity().finish();
 	            	break;

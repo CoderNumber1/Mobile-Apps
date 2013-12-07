@@ -13,7 +13,6 @@ import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.data.MovieFilter;
 import com.laziton.movielocker.dataservices.DataServiceFactory;
 import com.laziton.movielocker.dataservices.IDataService;
-import com.laziton.movielocker.dataservices.IFilteredMovieDataService;
 import com.laziton.movielocker.store.FilteredMovieStore;
 import com.laziton.movielocker.store.FilteredMovieStore.IMovieStoreMonitor;
 
@@ -44,10 +43,10 @@ public class GenreMembersActivity extends IdMultiselectActivity {
 			this.selections.clear();
 			ArrayList<Integer> genreMovies = new ArrayList<Integer>();
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-			dataService.Open();
+			dataService.open();
 			MovieFilter filter = new MovieFilter();
 			filter.setGenreIds(this.genreId.toString());
-			for(Movie movie : dataService.GetMoviesByFilter(filter)){
+			for(Movie movie : dataService.getMoviesByFilter(filter)){
 				genreMovies.add(movie.getId());
 			}
 			for(Movie movie : FilteredMovieStore.getInstance().getMovies()){

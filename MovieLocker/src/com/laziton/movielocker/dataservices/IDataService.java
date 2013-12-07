@@ -9,61 +9,59 @@ import com.laziton.movielocker.data.Image;
 import com.laziton.movielocker.data.Movie;
 import com.laziton.movielocker.data.MovieFilter;
 
-import android.database.Cursor;
-
 public interface IDataService {
-	public void Open();
-	public void Close();
-	public boolean IsOpen();
+	public void open();
+	public void close();
+	public boolean isOpen();
 	
-	public Movie GetMovie(int id);
-	public ArrayList<Movie> GetMovies();
-	public ArrayList<Movie> GetMoviesByFilter(MovieFilter filter);
-	public ArrayList<Movie> GetMoviesByCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
-	public ArrayList<Movie> GetMovies(ArrayList<Integer> movieIds);
+	public Movie getMovie(int id);
+	public ArrayList<Movie> getMovies();
+	public ArrayList<Movie> getMoviesByFilter(MovieFilter filter);
+	public ArrayList<Movie> getMoviesByCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
+	public ArrayList<Movie> getMovies(ArrayList<Integer> movieIds);
 	
-	public int InsertMovie(Movie movie);
-	public void UpdateMovie(Movie movie);
-	public void DeleteMovie(Movie movie);
+	public int insertMovie(Movie movie);
+	public void updateMovie(Movie movie);
+	public void deleteMovie(Movie movie);
 	
-	public Genre GetGenre(int id);
-	public ArrayList<Genre> GetGenres();
+	public Genre getGenre(int id);
+	public ArrayList<Genre> getGenres();
 	
-	public void InsertGenre(Genre genre);
-	public void UpdateGenre(Genre genre);
-	public void DeleteGenre(Genre genre);
+	public void insertGenre(Genre genre);
+	public void updateGenre(Genre genre);
+	public void deleteGenre(Genre genre);
 	
-	public Image GetImage(int id);
-	public Image GetImageByMovieId(int movieId);
-	public ArrayList<Image> GetImages();
+	public Image getImage(int id);
+	public Image getImageByMovieId(int movieId);
+	public ArrayList<Image> getImages();
 	
-	public void InsertImage(Image image);
-	public void UpdateImage(Image image);
-	public void DeleteImage(Image image);
+	public void insertImage(Image image);
+	public void updateImage(Image image);
+	public void deleteImage(Image image);
 	
-	public Collection GetCollection(int id);
-	public ArrayList<Collection> GetCollections();
-	public ArrayList<Collection> GetCollectionsByCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
-	public ArrayList<Collection> GetCollections(ArrayList<Integer> collectionIds);
+	public Collection getCollection(int id);
+	public ArrayList<Collection> getCollections();
+	public ArrayList<Collection> getCollectionsByCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
+	public ArrayList<Collection> getCollections(ArrayList<Integer> collectionIds);
 	
-	public void InsertCollection(Collection collection);
-	public void UpdateCollection(Collection collection);
-	public void DeleteCollection(Collection collection);
+	public void insertCollection(Collection collection);
+	public void updateCollection(Collection collection);
+	public void deleteCollection(Collection collection);
 	
-	public CollectionMovie GetCollectionMovie(int id);
-	public ArrayList<CollectionMovie> GetCollectionMovies(Integer collectionId, Integer movieId);
-	public ArrayList<CollectionMovie> GetCollectionMovies(ArrayList<Integer> collectionIds, ArrayList<Integer> movieIds);
+	public CollectionMovie getCollectionMovie(int id);
+	public ArrayList<CollectionMovie> getCollectionMovies(Integer collectionId, Integer movieId);
+	public ArrayList<CollectionMovie> getCollectionMovies(ArrayList<Integer> collectionIds, ArrayList<Integer> movieIds);
 	
-	public void InsertCollectionMovie(CollectionMovie collectionMovie);
-	public void UpdateCollectionMovie(CollectionMovie collectionMovie);
-	public void DeleteCollectionMovie(CollectionMovie collectionMovie);
-	public void DeleteCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
+	public void insertCollectionMovie(CollectionMovie collectionMovie);
+	public void updateCollectionMovie(CollectionMovie collectionMovie);
+	public void deleteCollectionMovie(CollectionMovie collectionMovie);
+	public void deleteCollectionMovies(ArrayList<CollectionMovie> collectionMovies);
 	
-	public MovieFilter GetMovieFilter(int id);
-	public MovieFilter GetMovieFilter(String filterName);
-	public ArrayList<MovieFilter> GetMovieFilters();
+	public MovieFilter getMovieFilter(int id);
+	public MovieFilter getMovieFilter(String filterName);
+	public ArrayList<MovieFilter> getMovieFilters();
 	
-	public void InsertMovieFilter(MovieFilter filter);
-	public void UpdateMovieFilter(MovieFilter filter);
-	public void DeleteMovieFilter(MovieFilter filter);
+	public void insertMovieFilter(MovieFilter filter);
+	public void updateMovieFilter(MovieFilter filter);
+	public void deleteMovieFilter(MovieFilter filter);
 }

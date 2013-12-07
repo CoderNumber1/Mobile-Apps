@@ -3,23 +3,8 @@ package com.laziton.movielocker.data;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-
-import android.annotation.SuppressLint;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.database.DataSetObserver;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
-import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
 public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
@@ -166,8 +151,7 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 			try {
 				this.movieFilterDao = getDao(MovieFilter.class);
 			} catch (java.sql.SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.e("getMovieFilterDao", e.toString());
 			}
 		}
 		return this.movieFilterDao;
@@ -178,8 +162,7 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 			try {
 				this.collectionMovieDao = getDao(CollectionMovie.class);
 			} catch (java.sql.SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.e("getCollectionMovieDao", e.toString());
 			}
 		}
 		return this.collectionMovieDao;
@@ -190,8 +173,8 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 			try{
 				this.collectionDao = getDao(Collection.class);
 			}
-			catch(java.sql.SQLException ex){
-				//TODO
+			catch (java.sql.SQLException e){
+				Log.e("getCollectionDao", e.toString());
 			}
 		}
 		
@@ -217,8 +200,8 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 			try{
 				this.movieDao = getDao(Movie.class);
 			}
-			catch(java.sql.SQLException ex){
-				//TODO
+			catch(java.sql.SQLException e){
+				Log.e("getMovieDao", e.toString());
 			}
 		}
 		
@@ -230,8 +213,8 @@ public class MovieLockerSqlContext extends OrmLiteSqliteOpenHelper {
 			try{
 				this.genreDao = getDao(Genre.class);
 			}
-			catch(java.sql.SQLException ex){
-				//TODO
+			catch(java.sql.SQLException e){
+				Log.e("getGenreDao", e.toString());
 			}
 		}
 		

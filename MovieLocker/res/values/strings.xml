@@ -3,6 +3,8 @@
 
     <string name="app_name">Movie Locker</string>
     
+    <string name="movie_cover_content_description">Movie Cover</string>
+    
 	<string name="genre_list_title">Genres</string>
 	<string name="genre_title">Genre</string>
 	<string name="genre_name_text">Genre Name</string>

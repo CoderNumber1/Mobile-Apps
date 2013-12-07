@@ -87,14 +87,14 @@ public class MovieListFragment extends ListFragment implements IMovieStoreMonito
 					switch(item.getItemId()){
 						case R.id.menu_delete:
 							IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-							dataService.Open();
+							dataService.open();
 							
 							for(int i = adapter.getCount() - 1; i >= 0; i--){
 								if(getListView().isItemChecked(i)){
-									dataService.DeleteMovie(adapter.getItem(i));
+									dataService.deleteMovie(adapter.getItem(i));
 								}
 							}
-							dataService.Close();
+							dataService.close();
 							mode.finish();
 							FilteredMovieStore.getInstance().updateStore();
 							return true;
@@ -193,9 +193,9 @@ public class MovieListFragment extends ListFragment implements IMovieStoreMonito
 		switch(item.getItemId()){
 			case R.id.menu_delete:
 				IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-				dataService.Open();
-				dataService.DeleteMovie(movie);
-				dataService.Close();
+				dataService.open();
+				dataService.deleteMovie(movie);
+				dataService.close();
 				FilteredMovieStore.getInstance().updateStore();
 				return true;
 			case R.id.menu_edit:

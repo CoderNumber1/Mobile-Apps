@@ -2,9 +2,7 @@ package com.laziton.movielocker.images;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
@@ -15,6 +13,7 @@ import com.laziton.movielocker.data.Image;
 import com.laziton.movielocker.dataservices.DataServiceFactory;
 import com.laziton.movielocker.dataservices.IDataService;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -42,6 +42,8 @@ public class ImageManager {
 		this.lock = new ReentrantLock();
 	}
 	
+	@SuppressLint("WorldWriteableFiles")
+	@SuppressWarnings("deprecation")
 	public Uri generateTempUri(){
 		String imageName = "movie_locker_temp_image" + String.valueOf(UUID.randomUUID()) + ".jpg";
 		File imageFile = new File(MovieLockerApp.context.getExternalCacheDir(), imageName);
@@ -49,10 +51,8 @@ public class ImageManager {
 		try {
 			FileOutputStream fileOut = MovieLockerApp.context.openFileOutput(imageName, Context.MODE_WORLD_WRITEABLE);
 			fileOut.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.e("generateTempUri", e.toString());
 		}
 		
 		imageFile = new File(MovieLockerApp.context.getExternalCacheDir(), imageName);
@@ -108,7 +108,6 @@ public class ImageManager {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public byte[] loadImageBytes(Uri uri){
 		byte[] imageData = null;
 		try {
@@ -124,13 +123,11 @@ public class ImageManager {
 			
 			imageData = bo.toByteArray();  
 			bo.close();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			Log.e("loadImageBytes", e.toString());
 			return null;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		
 		return imageData;
 	}
 	public BitmapDrawable loadImage(Uri uri){
@@ -140,18 +137,19 @@ public class ImageManager {
 	public byte[] loadImageBytes(int movieId){
 		byte[] iData = null;
 		IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-    	dataService.Open();
-    	Image i = dataService.GetImageByMovieId(movieId);  
+    	dataService.open();
+    	Image i = dataService.getImageByMovieId(movieId);  
     	if(i != null){
     		iData = i.getImageData();
     	}
-		dataService.Close();
+		dataService.close();
 		return iData;
 	}
 	public BitmapDrawable loadImage(int movieId){
 		return this.loadImage(loadImageBytes(movieId));
 	}
 
+	@SuppressWarnings("deprecation")
 	public BitmapDrawable loadImage(byte[] imageBytes){
 		if(imageBytes == null)
 			return null;
@@ -273,19 +271,19 @@ public class ImageManager {
 			byte[] imageBytes = loadImageBytes(args[0].uri);
 			
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-	    	dataService.Open();
-	    	Image image = args[0].movieId > 0 ? dataService.GetImageByMovieId(args[0].movieId) : null;  
+	    	dataService.open();
+	    	Image image = args[0].movieId > 0 ? dataService.getImageByMovieId(args[0].movieId) : null;  
 	    	if(image == null){
 	    		image = new Image();
 	    		image.setMovieId(args[0].movieId);
 	    		image.setImageData(imageBytes);
-	    		dataService.InsertImage(image);
+	    		dataService.insertImage(image);
 	    	}
 	    	else{
 	    		image.setImageData(imageBytes);
-	    		dataService.UpdateImage(image);
+	    		dataService.updateImage(image);
 	    	}
-			dataService.Close();
+			dataService.close();
 			
 			if(ImageManager.this.memCache.get(args[0].movieId) != null)
 				ImageManager.this.memCache.remove(args[0].movieId);

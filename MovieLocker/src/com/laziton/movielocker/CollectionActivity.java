@@ -56,12 +56,12 @@ public class CollectionActivity extends SingleFragmentHost {
 	        this.collectionMovies = new ArrayList<Integer>();
 	        if(id > 0){
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-		        dataService.Open();
-		        this.collection = dataService.GetCollection(id);
-		        for(CollectionMovie member : dataService.GetCollectionMovies(this.collection.getId(), null)){
+		        dataService.open();
+		        this.collection = dataService.getCollection(id);
+		        for(CollectionMovie member : dataService.getCollectionMovies(this.collection.getId(), null)){
 		        	this.collectionMovies.add(member.getMovieId());
 		        }
-		        dataService.Close();
+		        dataService.close();
 	        }
 	        else{
 	        	this.collection = new Collection();
@@ -109,6 +109,7 @@ public class CollectionActivity extends SingleFragmentHost {
 	        return view; 
 	    }
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public void onActivityResult(int requestCode, int resultCode, Intent data) {
 			if(resultCode == Activity.RESULT_OK){
@@ -132,24 +133,24 @@ public class CollectionActivity extends SingleFragmentHost {
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-	    	dataService.Open();
+	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {
 	            case R.id.menu_save:
 	            	if(this.collection.getId() > 0)
-	            		dataService.UpdateCollection(this.collection);
+	            		dataService.updateCollection(this.collection);
 	            	else
-	            		dataService.InsertCollection(this.collection);
+	            		dataService.insertCollection(this.collection);
 	            	
-	            	dataService.DeleteCollectionMovies(dataService.GetCollectionMovies(this.collection.getId(), null));
+	            	dataService.deleteCollectionMovies(dataService.getCollectionMovies(this.collection.getId(), null));
 	            	for(Integer movieId : this.collectionMovies){
 	            		CollectionMovie member = new CollectionMovie();
 	            		member.setCollectionId(this.collection.getId());
 	            		member.setMovieId(movieId);
-	            		dataService.InsertCollectionMovie(member);
+	            		dataService.insertCollectionMovie(member);
 	            	}
 	            	
-	            	dataService.Close();
+	            	dataService.close();
 	            	getActivity().setResult(RESULT_OK);
 	                getActivity().finish();
 	            	break;

@@ -44,9 +44,9 @@ public class CoverDisplayFragment extends Fragment {
         
         this.movieId = getArguments().getInt(MOVIE_ID);
         IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-        dataService.Open();
-        this.movie = dataService.GetMovie(this.movieId);
-        dataService.Close();
+        dataService.open();
+        this.movie = dataService.getMovie(this.movieId);
+        dataService.close();
 
         this.setImage(this.movieId);
         setHasOptionsMenu(true);

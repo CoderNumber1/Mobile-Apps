@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.NavUtils;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -55,9 +54,9 @@ public class CollectionListActivity extends SingleFragmentHost {
 		private void populateList(boolean notify){
 			this.collections.clear();
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-			dataService.Open();
-			this.collections.addAll(dataService.GetCollections());
-			dataService.Close();
+			dataService.open();
+			this.collections.addAll(dataService.getCollections());
+			dataService.close();
 			
 			if(notify)
 				this.collectionsAdapter.notifyDataSetChanged();
@@ -87,14 +86,14 @@ public class CollectionListActivity extends SingleFragmentHost {
 							case R.id.menu_delete:
 								CollectionsAdapter adapter = (CollectionsAdapter)getListAdapter();
 								IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-								dataService.Open();
+								dataService.open();
 								
 								for(int i = adapter.getCount() - 1; i >= 0; i--){
 									if(getListView().isItemChecked(i)){
-										dataService.DeleteCollection(adapter.getItem(i));
+										dataService.deleteCollection(adapter.getItem(i));
 									}
 								}
-								dataService.Close();
+								dataService.close();
 								mode.finish();
 								populateList(true);
 								return true;
@@ -170,10 +169,10 @@ public class CollectionListActivity extends SingleFragmentHost {
 			switch(item.getItemId()){
 				case R.id.menu_delete:
 					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-					dataService.Open();
+					dataService.open();
 					
-					dataService.DeleteCollection(collection);
-					dataService.Close();
+					dataService.deleteCollection(collection);
+					dataService.close();
 					this.populateList(true);
 					return true;
 			}

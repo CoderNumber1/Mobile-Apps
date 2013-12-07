@@ -55,9 +55,9 @@ public class GenreActivity extends SingleFragmentHost {
 	        int id = getArguments().getInt(GenreActivity.GENRE_ID);
 	        if(id > 0){
 		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-		        dataService.Open();
-		        this.genre = dataService.GetGenre(id);
-		        dataService.Close();
+		        dataService.open();
+		        this.genre = dataService.getGenre(id);
+		        dataService.close();
 	        }
 	        else{
 	        	this.genre = new Genre();
@@ -130,21 +130,21 @@ public class GenreActivity extends SingleFragmentHost {
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
-	    	dataService.Open();
+	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {
 	            case R.id.menu_save:
 	            	if(this.genre.getId() > 0)
-	            		dataService.UpdateGenre(this.genre);
+	            		dataService.updateGenre(this.genre);
 	            	else
-	            		dataService.InsertGenre(this.genre);
+	            		dataService.insertGenre(this.genre);
 	            	
-	            	for(Movie movie : dataService.GetMovies(this.movies)){
+	            	for(Movie movie : dataService.getMovies(this.movies)){
 	            		movie.setGenreId(this.genre.getId());
-	            		dataService.UpdateMovie(movie);
+	            		dataService.updateMovie(movie);
 	            	}
 	            	
-	            	dataService.Close();
+	            	dataService.close();
 	            	getActivity().setResult(RESULT_OK);
 	                getActivity().finish();
 	            	break;
