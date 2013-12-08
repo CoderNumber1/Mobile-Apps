@@ -7,14 +7,14 @@ public class DataServiceFactory {
 	
 	private DataServiceFactory(){}
 	
-	public static DataServiceFactory GetInstance(){
+	public static DataServiceFactory getInstance(){
 		if(instance == null)
 			instance = new DataServiceFactory();
 		
 		return instance;
 	}
 	
-	public IDataService GetDataService(){
+	public IDataService getDataService(){
 		IDataService result;
 		
 		result = new SqlLiteDataService(MovieLockerApp.context);
@@ -22,8 +22,8 @@ public class DataServiceFactory {
 		return result;
 	}
 	
-	public IFilteredMovieDataService GetFilteredMovieDataService(){
-		IDataService dataService = this.GetDataService();
+	public IFilteredMovieDataService getFilteredMovieDataService(){
+		IDataService dataService = this.getDataService();
 		IFilteredMovieDataService result = new FilteredMovieDataService(dataService);
 		
 		return result;

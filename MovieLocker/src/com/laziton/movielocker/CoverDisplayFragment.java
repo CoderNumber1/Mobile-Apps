@@ -43,7 +43,7 @@ public class CoverDisplayFragment extends Fragment {
         super.onCreate(savedInstanceState);
         
         this.movieId = getArguments().getInt(MOVIE_ID);
-        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+        IDataService dataService = DataServiceFactory.getInstance().getDataService();
         dataService.open();
         this.movie = dataService.getMovie(this.movieId);
         dataService.close();

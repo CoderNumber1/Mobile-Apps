@@ -34,7 +34,7 @@ public class MovieCollectionsActivity extends IdMultiselectActivity {
 		private void populateSelections(boolean notify){
 			this.selections.clear();
 			ArrayList<Integer> movieCollections = new ArrayList<Integer>();
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 			dataService.open();
 			for(CollectionMovie member : dataService.getCollectionMovies(null, this.movieId)){
 				movieCollections.add(member.getCollectionId());

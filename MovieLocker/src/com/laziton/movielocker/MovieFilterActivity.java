@@ -56,11 +56,11 @@ public class MovieFilterActivity extends SingleFragmentHost {
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        
-	        IFilteredMovieDataService filterService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
+	        IFilteredMovieDataService filterService = DataServiceFactory.getInstance().getFilteredMovieDataService();
 	        
-	        filterService.Open();
-	        this.filter = filterService.GetMovieFilter();
-	        filterService.Close();
+	        filterService.open();
+	        this.filter = filterService.getMovieFilter();
+	        filterService.close();
 	        
 	        setHasOptionsMenu(true);
 	    }
@@ -95,7 +95,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 				@Override
 				public void onClick(View arg0) {
 					Intent getCollections = new Intent(getActivity(), IdMultiselectActivity.class);
-					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+					IDataService dataService = DataServiceFactory.getInstance().getDataService();
 					dataService.open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedCollections = new ArrayList<Integer>();
@@ -123,7 +123,7 @@ public class MovieFilterActivity extends SingleFragmentHost {
 				@Override
 				public void onClick(View arg0) {
 					Intent getGenres = new Intent(getActivity(), IdMultiselectActivity.class);
-					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+					IDataService dataService = DataServiceFactory.getInstance().getDataService();
 					dataService.open();
 					ArrayList<IdMultiselectActivity.KeyValueSelection> selections = new ArrayList<IdMultiselectActivity.KeyValueSelection>();
 					ArrayList<Integer> selectedGenres = new ArrayList<Integer>();
@@ -221,8 +221,8 @@ public class MovieFilterActivity extends SingleFragmentHost {
 		        	this.chkWishlist.setChecked(true);
 		        	break;
 	            case R.id.menu_done:
-	            	IFilteredMovieDataService filterService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
-	            	filterService.SetMovieFilter(this.filter);
+	            	IFilteredMovieDataService filterService = DataServiceFactory.getInstance().getFilteredMovieDataService();
+	            	filterService.setMovieFilter(this.filter);
 	            	FilteredMovieStore.getInstance().updateStore();
 	            	getActivity().setResult(RESULT_OK);
 	            	getActivity().finish();

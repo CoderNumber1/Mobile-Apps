@@ -30,7 +30,7 @@ public class GenreListFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 		super.setHasOptionsMenu(true);
 		
-		IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+		IDataService dataService = DataServiceFactory.getInstance().getDataService();
 		dataService.open();
 		this.genres = dataService.getGenres();
 		dataService.close();

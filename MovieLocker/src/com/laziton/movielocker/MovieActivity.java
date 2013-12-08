@@ -105,7 +105,7 @@ public class MovieActivity extends SingleFragmentHost {
 	        int id = getArguments().getInt(MovieActivity.MOVIE_ID);
 	        this.collections = new ArrayList<Integer>();
 	        if(id > 0){
-		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+		        IDataService dataService = DataServiceFactory.getInstance().getDataService();
 		        dataService.open();
 		        this.movie = dataService.getMovie(id);
 		        for(CollectionMovie member : dataService.getCollectionMovies(null, id)){
@@ -196,7 +196,7 @@ public class MovieActivity extends SingleFragmentHost {
 	        	
 //	        }
 	        
-	        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+	        IDataService dataService = DataServiceFactory.getInstance().getDataService();
 	        dataService.open();
 	        ArrayList<Genre> genres = dataService.getGenres();
 	        GenreAdapter adapter = new GenreAdapter(genres); 
@@ -456,7 +456,7 @@ public class MovieActivity extends SingleFragmentHost {
 		
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {

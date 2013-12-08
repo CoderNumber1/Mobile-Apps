@@ -13,35 +13,35 @@ public class FilteredMovieDataService implements IFilteredMovieDataService {
 	
 	public FilteredMovieDataService(IDataService dataService){
 		this.dataService = dataService;
-		this.Open();
+		this.open();
 	}
 	
 	@Override
 	protected void finalize() throws Throwable {
-		this.Close();
+		this.close();
 		
 		super.finalize();
 	}
 
 	@Override
-	public void Open() {
+	public void open() {
 		if(!this.dataService.isOpen()){
 			this.dataService.open();
 		}
 	}
 	@Override
-	public void Close() {
+	public void close() {
 		if(this.dataService.isOpen()){
 			this.dataService.close();
 		}
 	}
 	@Override
-	public boolean IsOpen() {
+	public boolean isOpen() {
 		return this.dataService.isOpen();
 	}
 
 	@Override
-	public MovieFilter GetMovieFilter() {
+	public MovieFilter getMovieFilter() {
 		if(this.filter == null){
 			this.filter = this.dataService.getMovieFilter(FilteredMovieDataService.DEFAULT_FILTER_NAME);
 			
@@ -58,7 +58,7 @@ public class FilteredMovieDataService implements IFilteredMovieDataService {
 	}
 
 	@Override
-	public void SetMovieFilter(MovieFilter filter) {
+	public void setMovieFilter(MovieFilter filter) {
 		this.filter = filter;
 		
 		if(this.filter.getId() > 0)
@@ -68,10 +68,10 @@ public class FilteredMovieDataService implements IFilteredMovieDataService {
 	}
 
 	@Override
-	public ArrayList<Movie> GetFilteredMovies() {
+	public ArrayList<Movie> getFilteredMovies() {
 		ArrayList<Movie> result = null;
 		
-		result = this.dataService.getMoviesByFilter(this.GetMovieFilter());
+		result = this.dataService.getMoviesByFilter(this.getMovieFilter());
 		
 		return result;
 	}

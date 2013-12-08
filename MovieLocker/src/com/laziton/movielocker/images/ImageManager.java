@@ -136,7 +136,7 @@ public class ImageManager {
 
 	public byte[] loadImageBytes(int movieId){
 		byte[] iData = null;
-		IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+		IDataService dataService = DataServiceFactory.getInstance().getDataService();
     	dataService.open();
     	Image i = dataService.getImageByMovieId(movieId);  
     	if(i != null){
@@ -270,7 +270,7 @@ public class ImageManager {
 		protected Boolean doInBackground(ImageSetArgs... args) {
 			byte[] imageBytes = loadImageBytes(args[0].uri);
 			
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 	    	dataService.open();
 	    	Image image = args[0].movieId > 0 ? dataService.getImageByMovieId(args[0].movieId) : null;  
 	    	if(image == null){

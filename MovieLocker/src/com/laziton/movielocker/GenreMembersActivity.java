@@ -42,7 +42,7 @@ public class GenreMembersActivity extends IdMultiselectActivity {
 		private void populateSelections(boolean notify){
 			this.selections.clear();
 			ArrayList<Integer> genreMovies = new ArrayList<Integer>();
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 			dataService.open();
 			MovieFilter filter = new MovieFilter();
 			filter.setGenreIds(this.genreId.toString());

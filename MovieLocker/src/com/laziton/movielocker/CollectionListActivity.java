@@ -53,7 +53,7 @@ public class CollectionListActivity extends SingleFragmentHost {
 		
 		private void populateList(boolean notify){
 			this.collections.clear();
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 			dataService.open();
 			this.collections.addAll(dataService.getCollections());
 			dataService.close();
@@ -85,7 +85,7 @@ public class CollectionListActivity extends SingleFragmentHost {
 						switch(item.getItemId()){
 							case R.id.menu_delete:
 								CollectionsAdapter adapter = (CollectionsAdapter)getListAdapter();
-								IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+								IDataService dataService = DataServiceFactory.getInstance().getDataService();
 								dataService.open();
 								
 								for(int i = adapter.getCount() - 1; i >= 0; i--){
@@ -168,7 +168,7 @@ public class CollectionListActivity extends SingleFragmentHost {
 			
 			switch(item.getItemId()){
 				case R.id.menu_delete:
-					IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+					IDataService dataService = DataServiceFactory.getInstance().getDataService();
 					dataService.open();
 					
 					dataService.deleteCollection(collection);

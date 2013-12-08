@@ -33,11 +33,11 @@ public class FilteredMovieStore {
 	}
 	
 	public void updateStore(){
-		IFilteredMovieDataService filteredService = DataServiceFactory.GetInstance().GetFilteredMovieDataService();
-		filteredService.Open();
+		IFilteredMovieDataService filteredService = DataServiceFactory.getInstance().getFilteredMovieDataService();
+		filteredService.open();
 		this.movies.clear();
-		this.movies.addAll(filteredService.GetFilteredMovies());
-		filteredService.Close();
+		this.movies.addAll(filteredService.getFilteredMovies());
+		filteredService.close();
 
 		for(IMovieStoreMonitor monitor : this.adapters){
 			monitor.onStoreUpdated();

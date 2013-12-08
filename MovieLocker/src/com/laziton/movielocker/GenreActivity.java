@@ -54,7 +54,7 @@ public class GenreActivity extends SingleFragmentHost {
 	        
 	        int id = getArguments().getInt(GenreActivity.GENRE_ID);
 	        if(id > 0){
-		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+		        IDataService dataService = DataServiceFactory.getInstance().getDataService();
 		        dataService.open();
 		        this.genre = dataService.getGenre(id);
 		        dataService.close();
@@ -129,7 +129,7 @@ public class GenreActivity extends SingleFragmentHost {
 		
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {

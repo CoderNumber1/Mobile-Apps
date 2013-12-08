@@ -55,7 +55,7 @@ public class CollectionActivity extends SingleFragmentHost {
 	        int id = getArguments().getInt(CollectionActivity.COLLECTION_ID);
 	        this.collectionMovies = new ArrayList<Integer>();
 	        if(id > 0){
-		        IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+		        IDataService dataService = DataServiceFactory.getInstance().getDataService();
 		        dataService.open();
 		        this.collection = dataService.getCollection(id);
 		        for(CollectionMovie member : dataService.getCollectionMovies(this.collection.getId(), null)){
@@ -132,7 +132,7 @@ public class CollectionActivity extends SingleFragmentHost {
 		
 		@Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
-			IDataService dataService = DataServiceFactory.GetInstance().GetDataService();
+			IDataService dataService = DataServiceFactory.getInstance().getDataService();
 	    	dataService.open();
 	    	
 	        switch (item.getItemId()) {
